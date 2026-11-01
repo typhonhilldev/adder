@@ -80,7 +80,20 @@ Without the action, run `adder check --format github` in a step. It fails the jo
 
 ## GitLab CI
 
-`--format gitlab` writes a [Code Quality](https://docs.gitlab.com/ci/testing/code_quality/) report, which the merge request shows, and the usual output to the job's log:
+adder's job for GitLab runs `adder check` and shows problems, warnings, and out-of-date outputs in the merge request's [Code Quality](https://docs.gitlab.com/ci/testing/code_quality/) report. Include it from a release, with its integrity hash, which GitLab 17.9 and later check before running it:
+
+```yaml
+# .gitlab-ci.yml
+include:
+  - remote: https://raw.githubusercontent.com/typhonhilldev/adder/v1.2.0/ci/gitlab/adder.yml
+    integrity: sha256-Eky4uwW1BeR2qmkJ0d61rnHxm4RjOHqSZ1jhwPx6DuA=
+    inputs:
+      version: 1.2.0
+```
+
+The job runs in adder's image for `version`, which has Go too. It runs the adder `go.mod` declares as a tool, including a repository's [own build](extending.md#your-own-build), and otherwise the image's. Its other inputs are `command`, default `check`, `args`, such as `./... --diff`, `stage`, default `test`, and `working-directory`. The job is called `adder`, and can be extended like any other.
+
+Without the job, `--format gitlab` writes the same report from any job, and the usual output to the job's log:
 
 ```yaml
 # .gitlab-ci.yml
