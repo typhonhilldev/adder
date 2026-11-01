@@ -6,6 +6,9 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ### Added
 
+- `--format` chooses how every command reports: `text`, `json`, `github` for GitHub Actions annotations on the pull request, or `gitlab` for a GitLab Code Quality report. Both CI formats show problems, warnings, and the outputs `adder check` finds out of date at their files, and replace the `jq` the integration guide used. `--json` is short for `--format json`, which the documentation now uses.
+- A GitHub Action, `uses: typhonhilldev/adder@v1.2.0`, that runs `adder check` with annotations. It runs the adder `go.mod` declares as a tool, or downloads a release and checks its checksum and attestation.
+
 - Each release carries its build attestation as `adder_<version>.intoto.jsonl`, for checking offline.
 
 ### Changed

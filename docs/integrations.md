@@ -45,7 +45,7 @@ The hooks run on every commit, whatever changed, since a change anywhere can aff
 
 ## GitHub Actions
 
-`adder check --diff` fails the job when a derived file is out of date, and shows what changed:
+adder's action runs `adder check` and shows each problem, warning, and out-of-date output as an annotation on the pull request:
 
 ```yaml
 # .github/workflows/ci.yml
@@ -56,34 +56,42 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with: {go-version-file: go.mod}
-      - run: go tool adder check --diff
+      - uses: typhonhilldev/adder@v1.2.0
 ```
 
-To show problems and out-of-date files as annotations on the pull request, read `--json` instead:
+It runs the adder `go.mod` declares as a tool, including a repository's [own build](extending.md#your-own-build) with its packs, which needs adder v1.2.0 or later. In a repository that does not declare it, the action downloads the release it is referenced by and checks it against `checksums.txt` and its attestation before running it; `version` picks another, from v1.2.0 on.
+
+| Input | Default | Description |
+| --- | --- | --- |
+| `command` | `check` | The command to run, such as `derive`. |
+| `args` | | Arguments after the command, such as `./... --diff`. |
+| `version` | the action's release | The release to download when `go.mod` does not declare adder as a tool. |
+| `working-directory` | `.` | Where to run adder. |
+
+Reference the action by its full version, or a commit, as GitHub [recommends](https://docs.github.com/actions/reference/security/secure-use#using-third-party-actions). adder's tags never move, so there is no `@v1`: let Dependabot's `github-actions` updates propose each new release instead.
+
+Without the action, run `adder check --format github` in a step. It fails the job when a derived file is out of date, as `--diff` shows, and annotates the pull request:
 
 ```yaml
-      - run: |
-          go tool adder check --json > adder.json || status=$?
-          jq -r '
-            [., (.configs // [])[]] | .[]
-            | (.config // "" | sub("adder.yaml$"; "")) as $dir
-            | ((.problems // [])[] | "::error file=\(.pos.file // ""),line=\(.pos.line // 1),col=\(.pos.column // 1)::\(.message) [\(.code)]"),
-              ((.warnings // [])[] | "::warning file=\(.pos.file // ""),line=\(.pos.line // 1),col=\(.pos.column // 1)::\(.message) [\(.code)]"),
-              ((.changes // [])[] | select(.status != "unchanged") | "::error file=\($dir + .path)::\($dir + .path) is out of date; run adder derive [stale]")
-          ' adder.json
-          exit ${status:-0}
+      - run: go tool adder check --diff --format github
 ```
 
-The same step works with `go tool adder check ./... --json` in a [monorepo](commands.md#monorepos).
+`go tool adder check ./... --format github` does the same in a [monorepo](commands.md#monorepos).
 
 ## GitLab CI
+
+`--format gitlab` writes a [Code Quality](https://docs.gitlab.com/ci/testing/code_quality/) report, which the merge request shows, and the usual output to the job's log:
 
 ```yaml
 # .gitlab-ci.yml
 adder:
   image: golang:1.27
   script:
-    - go tool adder check --diff
+    - go tool adder check --diff --format gitlab > gl-code-quality-report.json
+  artifacts:
+    when: always
+    reports:
+      codequality: gl-code-quality-report.json
 ```
 
 A repository that does not declare adder as a tool can use the release's image, which has Go too, for scans with `typeCheck`. Pin the version, as `go.mod` would, and clear the entrypoint, which runs `adder`:
@@ -91,37 +99,17 @@ A repository that does not declare adder as a tool can use the release's image, 
 ```yaml
 adder:
   image:
-    name: ghcr.io/typhonhilldev/adder:1.1.0
+    name: ghcr.io/typhonhilldev/adder:1.2.0
     entrypoint: [""]
   script:
-    - adder check --diff
-```
-
-The image runs anywhere else the same way, such as `docker run --rm -v "$PWD:/src" ghcr.io/typhonhilldev/adder:1.1.0 check`. A repository whose scans set `typeCheck` needs its modules downloaded first, with `go mod download`, since adder never downloads them.
-
-To show problems and out-of-date files in the merge request's [Code Quality](https://docs.gitlab.com/ci/testing/code_quality/) widget, convert `--json` into a Code Quality report:
-
-```yaml
-adder:
-  image: golang:1.27
-  script:
-    - apt-get update -qq && apt-get install -y -qq jq
-    - go tool adder check --json > adder.json || status=$?
-    - |
-      jq '[
-        [., (.configs // [])[]] | .[]
-        | (.config // "" | sub("adder.yaml$"; "")) as $dir
-        | ((.problems // [])[] | {severity: "major", code, message, file: (.pos.file // "adder.yaml"), line: (.pos.line // 1)}),
-          ((.warnings // [])[] | {severity: "minor", code, message, file: (.pos.file // "adder.yaml"), line: (.pos.line // 1)}),
-          ((.changes // [])[] | select(.status != "unchanged") | {severity: "major", code: "stale", message: "\($dir + .path) is out of date; run adder derive", file: ($dir + .path), line: 1})
-        | {description: "\(.message) [\(.code)]", check_name: .code, severity, fingerprint: ("\(.code):\(.file):\(.line):\(.message)" | @base64), location: {path: .file, lines: {begin: .line}}}
-      ]' adder.json > gl-code-quality-report.json
-    - exit ${status:-0}
+    - adder check --diff --format gitlab > gl-code-quality-report.json
   artifacts:
     when: always
     reports:
       codequality: gl-code-quality-report.json
 ```
+
+The image runs anywhere else the same way, such as `docker run --rm -v "$PWD:/src" ghcr.io/typhonhilldev/adder:1.2.0 check`. A repository whose scans set `typeCheck` needs its modules downloaded first, with `go mod download`, since adder never downloads them.
 
 ## Coding agents
 

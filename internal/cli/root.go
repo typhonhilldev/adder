@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"slices"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -53,9 +54,13 @@ func usageArgs(validate cobra.PositionalArgs) cobra.PositionalArgs {
 type globalOptions struct {
 	root    string
 	config  string
-	json    bool
+	format  string
+	json    bool // the format is json, from --format json or its short form --json
 	quiet   bool
 	verbose bool
+
+	// loadedRoot and loadedConfig are the root and configuration file last loaded, for the CI formats' paths.
+	loadedRoot, loadedConfig string
 
 	packs  *pack.Registry
 	report report // set by a command when it starts running, for --json
@@ -92,6 +97,7 @@ func (o *globalOptions) loadFrom(dir string) (*config.Config, string, error) {
 	case root == "":
 		root = filepath.Dir(path)
 	}
+	o.loadedRoot, o.loadedConfig = root, path
 	cfg, err := config.Load(path, o.packs)
 	if cfg != nil && o.warnings != nil {
 		o.warnings.Add(cfg.Warnings...)
@@ -103,12 +109,16 @@ func (o *globalOptions) loadFrom(dir string) (*config.Config, string, error) {
 // process exit code.
 func Main(ctx context.Context, version string, packs []pack.Pack, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	cmd, opts := newRoot(version)
-	opts.json = wantsJSON(args)
+	opts.format = formatArg(args)
+	opts.json = opts.format == formatJSON
 	opts.warnings = &diag.Warnings{}
 	ctx = diag.WithWarnings(ctx, opts.warnings)
 	cmd.SetArgs(args)
 	cmd.SetIn(stdin)
 	cmd.SetOut(stdout)
+	if opts.format == formatGitLab {
+		cmd.SetOut(stderr) // standard output holds the report alone, so it can be saved
+	}
 	cmd.SetErr(stderr)
 
 	registry, err := pack.New(packs)
@@ -130,6 +140,15 @@ func Main(ctx context.Context, version string, packs []pack.Pack, args []string,
 		printWarnings(stderr, all.List(), useColor(stderr))
 		if err != nil {
 			printError(stderr, err, useColor(stderr))
+		}
+		if opts.format == formatGitHub || opts.format == formatGitLab {
+			base := ciBase(opts.format)
+			list := findings(opts.report, opts.warnings.List(), err, ran != nil && ran.Name() == "check", opts.loadedRoot, base)
+			if opts.format == formatGitHub {
+				writeGitHub(stdout, list)
+			} else {
+				writeGitLab(stdout, list, fallbackPath(opts.loadedConfig, base))
+			}
 		}
 	}
 	if err == nil {
@@ -239,7 +258,8 @@ func addGlobalFlags(cmd *cobra.Command, opts *globalOptions) {
 	})
 	cmd.PersistentFlags().StringVar(&opts.root, "root", "", "repository root that scans and outputs are relative to (default: the directory holding "+config.FileName+", found from the current directory)")
 	cmd.PersistentFlags().StringVarP(&opts.config, "config", "c", "", "configuration file (default <root>/"+config.FileName+")")
-	cmd.PersistentFlags().BoolVar(&opts.json, "json", opts.json, "print the result and any problems as one JSON object on standard output")
+	cmd.PersistentFlags().StringVar(&opts.format, "format", opts.format, "how to report: text, json for one JSON object, github for GitHub Actions annotations, or gitlab for a GitLab Code Quality report")
+	cmd.PersistentFlags().BoolVar(&opts.json, "json", opts.json, "short for --format json")
 	cmd.PersistentFlags().BoolVarP(&opts.quiet, "quiet", "q", opts.quiet, "print only problems")
 	cmd.PersistentFlags().BoolVarP(&opts.verbose, "verbose", "v", opts.verbose, "also print unchanged files and how many items each scan found")
 	// The command adder new builds for generators starts from the values already found, so help shows the
@@ -247,11 +267,23 @@ func addGlobalFlags(cmd *cobra.Command, opts *globalOptions) {
 	for _, name := range []string{"json", "quiet", "verbose"} {
 		cmd.PersistentFlags().Lookup(name).DefValue = "false"
 	}
+	cmd.PersistentFlags().Lookup("format").DefValue = formatText
+	_ = cmd.RegisterFlagCompletionFunc("format", cobra.FixedCompletions(formats, cobra.ShellCompDirectiveNoFileComp))
 	_ = cmd.MarkPersistentFlagDirname("root")
 	_ = cmd.MarkPersistentFlagFilename("config", "yaml", "yml")
 	cmd.PersistentPreRunE = func(c *cobra.Command, _ []string) error {
 		if opts.quiet && opts.verbose {
 			return &usageError{errors.New("--quiet and --verbose cannot be combined"), c.CommandPath()}
+		}
+		switch {
+		case !slices.Contains(formats, opts.format):
+			return &usageError{fmt.Errorf("unknown format %q; use text, json, github, or gitlab", opts.format), c.CommandPath()}
+		case opts.json && c.Flags().Changed("format") && opts.format != formatJSON:
+			return &usageError{fmt.Errorf("--json and --format %s cannot be combined", opts.format), c.CommandPath()}
+		case opts.json:
+			opts.format = formatJSON
+		case opts.format == formatJSON:
+			opts.json = true
 		}
 		warnDeprecated(c)
 		return nil

@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"strconv"
-	"strings"
 
 	"typhonhill.dev/adder/internal/diag"
 	"typhonhill.dev/adder/internal/plan"
@@ -110,21 +108,4 @@ func problemsFrom(err error) diag.List {
 		return diag.List{{Code: diag.Interrupted, Message: "interrupted"}}
 	}
 	return diag.From(err)
-}
-
-// wantsJSON reports whether args ask for JSON output, so that mistakes found before the flag is parsed are
-// reported as JSON too.
-func wantsJSON(args []string) bool {
-	on := false
-	for _, arg := range args {
-		if arg == "--" {
-			break
-		}
-		if arg == "--json" {
-			on = true
-		} else if value, ok := strings.CutPrefix(arg, "--json="); ok {
-			on, _ = strconv.ParseBool(value)
-		}
-	}
-	return on
 }

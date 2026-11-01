@@ -1,0 +1,121 @@
+# --format github adds an annotation for each out-of-date output to the text output.
+exec adder derive
+mkdir drivers/gcs
+cp gcs.go drivers/gcs/gcs.go
+exits 3 adder check --format github
+cmp stdout stale-github.txt
+
+# Paths are relative to GITHUB_WORKSPACE, from any directory.
+cd drivers/gcs
+env GITHUB_WORKSPACE=$WORK
+exits 3 adder check --format github
+stdout '^::error file=drivers/drivers.gen.go,title=adder%3A out-of-date::drivers/drivers.gen.go is out of date; run adder derive$'
+cd $WORK
+env GITHUB_WORKSPACE=
+
+# --format gitlab writes only the Code Quality report to standard output, and the text to standard error.
+exits 3 adder check --format gitlab
+cmp stdout stale-gitlab.json
+stderr '^would be updated    drivers/drivers.gen.go$'
+
+# Problems are errors at their positions, with their codes and hints.
+cp broken.go drivers/gcs/gcs.go
+exits 1 adder check --format github
+cmp stdout broken-github.txt
+stderr '\[go-syntax\]$'
+cp gcs.go drivers/gcs/gcs.go
+exec adder derive
+
+# Warnings are warnings.
+exec adder new old name=blob --dry-run --format github
+stdout '^::warning file=adder.yaml,line=15,col=3,title=adder%3A deprecated::generator "old" is deprecated: use driver$'
+
+# --format json is --json.
+exec adder derive --dry-run --format json
+cmp stdout derive.json
+exec adder derive --dry-run --json
+cmp stdout derive.json
+
+# An unknown format, and --json with another format, are usage mistakes.
+exits 2 adder check --format xml
+stderr '^adder: unknown format "xml"; use text, json, github, or gitlab$'
+exits 2 adder check --json --format github
+stdout '"code": "usage"'
+stdout '"message": "--json and --format github cannot be combined"'
+
+-- go.mod --
+module example.com/storage
+
+go 1.26
+-- adder.yaml --
+version: 1
+derive:
+  scans:
+    Drivers:
+      dirs: ["drivers/*"]
+      funcs:
+        name: ^New$
+  outputs:
+    - template: drivers.go.tmpl
+      path: drivers/drivers.gen.go
+generators:
+  driver:
+    files: [{template: driver.go.tmpl, path: "drivers/{{ .Inputs.name }}/{{ .Inputs.name }}.go"}]
+    inputs: {name: {}}
+  old:
+    deprecated: use driver
+    files: [{template: driver.go.tmpl, path: "drivers/{{ .Inputs.name }}/{{ .Inputs.name }}.go"}]
+    inputs: {name: {}}
+-- drivers.go.tmpl --
+package drivers
+
+// Names lists the drivers.
+var Names = []string{ {{- range .Drivers }}"{{ .Package }}", {{ end -}} }
+-- driver.go.tmpl --
+package {{ .Inputs.name }}
+
+func New() {}
+-- drivers/local/local.go --
+package local
+
+func New() {}
+-- gcs.go --
+package gcs
+
+func New() {}
+-- broken.go --
+package gcs
+
+func New() {
+-- stale-github.txt --
+would be updated    drivers/drivers.gen.go
+::error file=drivers/drivers.gen.go,title=adder%3A out-of-date::drivers/drivers.gen.go is out of date; run adder derive
+-- stale-gitlab.json --
+[
+  {
+    "description": "drivers/drivers.gen.go is out of date; run adder derive [out-of-date]",
+    "check_name": "out-of-date",
+    "fingerprint": "6dbd6b62ee1256fa8dae75e323577a7263a7fa4fc44bdbc4bdda94582bf99cba",
+    "severity": "major",
+    "location": {
+      "path": "drivers/drivers.gen.go",
+      "lines": {
+        "begin": 1
+      }
+    }
+  }
+]
+-- broken-github.txt --
+::error file=drivers/gcs/gcs.go,line=3,col=14,title=adder%3A go-syntax::expected '}', found 'EOF'
+-- derive.json --
+{
+  "dryRun": true,
+  "changes": [
+    {
+      "path": "drivers/drivers.gen.go",
+      "status": "unchanged"
+    }
+  ],
+  "warnings": [],
+  "problems": []
+}

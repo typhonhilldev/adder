@@ -49,6 +49,7 @@ generators:
 		{name: "an inputs file", words: []string{"new", "driver", "--inputs", ""}, want: "json\n:8\n"},
 		{name: "global flags before the generator", words: []string{"new", "--root", ".", ""}, want: "driver\tAdd a storage driver\n:4\n"},
 		{name: "describe", words: []string{"describe", ""}, want: "driver\tAdd a storage driver\n:4\n"},
+		{name: "formats", words: []string{"check", "--format", ""}, want: "text\njson\ngithub\ngitlab\n:4\n"},
 		{name: "describe takes one generator", words: []string{"describe", "driver", ""}, want: ":4\n"},
 		{name: "test skips generators already named", words: []string{"test", "driver", ""}, want: ":4\n"},
 		{name: "explain", words: []string{"explain", ""}, want: "drivers/drivers.gen.go\n:4\n"},
