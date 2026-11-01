@@ -23,7 +23,7 @@ These keep adder small enough to learn in an afternoon and maintain for years. A
 
 ## Features
 
-Status: ✅ available · 🔜 planned for the milestone shown: v1.0, or the launch, when adder is published as a public tool · 💡 idea, not a commitment.
+Status: ✅ available · 🔜 planned for the launch, when adder is published as a public tool · 💡 idea, not a commitment.
 
 ### Configuration
 
@@ -34,12 +34,12 @@ Status: ✅ available · 🔜 planned for the milestone shown: v1.0, or the laun
 | Every validation problem reported at once, with its line and column | ✅ |
 | Paths are slash-separated, relative, confined to their root, and cleaned on load | ✅ |
 | Find `adder.yaml` by walking up from the current directory, like `go` finds `go.mod` (one file name, [design 12](docs/design.md#12-one-configuration-file-at-the-root)) | ✅ |
-| JSON Schemas for `adder.yaml` and `pack.yaml`, for editor completion and validation ([design 31](docs/design.md#31-checking-the-configuration-planned-v10)) | ✅ |
+| JSON Schemas for `adder.yaml` and `pack.yaml`, for editor completion and validation ([design 31](docs/design.md#31-checking-the-configuration)) | ✅ |
 | The schema listed in SchemaStore, so editors find it without a modeline | 🔜 launch |
 | Top-level `vars` shared by every template, such as a license header | ✅ |
 | Multiple configurations in one repository, for monorepos and nested modules ([design 40](docs/design.md#40-multiple-configurations)) | ✅ |
-| A `file-exists` hint that names another tool's generated file, for moving to adder ([design 44](docs/design.md#44-moving-from-a-hand-rolled-generator-planned-v10)) | ✅ |
-| `adder migrate`: upgrade a configuration to a newer schema version, with the first schema version that needs it ([design 43](docs/design.md#43-reaching-v10-planned-v10)) | 💡 |
+| A `file-exists` hint that names another tool's generated file, for moving to adder ([design 44](docs/design.md#44-moving-from-a-hand-rolled-generator)) | ✅ |
+| `adder migrate`: upgrade a configuration to a newer schema version, with the first schema version that needs it ([design 43](docs/design.md#43-reaching-v10)) | 💡 |
 
 ### Scanning
 
@@ -113,7 +113,7 @@ Status: ✅ available · 🔜 planned for the milestone shown: v1.0, or the laun
 | Structured diagnostics with stable codes, positions, and hints | ✅ |
 | JSON output for every command ([design 22](docs/design.md#22-json-output)) | ✅ |
 | `adder explain <file>`: which configuration and template produced a generated file ([design 23](docs/design.md#23-discovering-generators-and-outputs)) | ✅ |
-| A guide and a ready-made `AGENTS.md` section for repositories that use coding agents ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-v10-and-launch)) | ✅ |
+| A guide and a ready-made `AGENTS.md` section for repositories that use coding agents ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
 | `adder mcp`: an MCP server exposing generators as tools, read-only unless asked to write | 🔜 launch |
 
 ### Command line
@@ -136,10 +136,10 @@ Status: ✅ available · 🔜 planned for the milestone shown: v1.0, or the laun
 | Feature | Status |
 | --- | --- |
 | `go get -tool` and `go tool adder` | ✅ |
-| Documented `//go:generate go tool adder derive` usage ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-v10-and-launch)) | ✅ |
-| A pre-commit hook definition (`.pre-commit-hooks.yaml`) ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-v10-and-launch)) | ✅ |
-| A GitHub Action that runs `adder check` on pull requests ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-v10-and-launch)) | 🔜 launch |
-| Documented CI jobs for GitLab CI and GitHub Actions, running `adder check` ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-v10-and-launch)) | ✅ |
+| Documented `//go:generate go tool adder derive` usage ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
+| A pre-commit hook definition (`.pre-commit-hooks.yaml`) ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
+| A GitHub Action that runs `adder check` on pull requests ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | 🔜 launch |
+| Documented CI jobs for GitLab CI and GitHub Actions, running `adder check` ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
 | Generator packs: generators, derive outputs, and templates shared across repositories as versioned Go packages ([design 41](docs/design.md#41-generator-packs)) | ✅ |
 
 ### Library API
@@ -147,10 +147,10 @@ Status: ✅ available · 🔜 planned for the milestone shown: v1.0, or the laun
 | Feature | Status |
 | --- | --- |
 | Internal pipeline built on plans, `fs.FS`, and `context.Context`, ready to expose | ✅ |
-| A public facade in the root package, experimental until v1.0: `adder.Main` and `adder.Pack` for a repository's own build ([design 18](docs/design.md#18-the-library-api-starts-with-packs-and-extensions)) | ✅ |
+| A public facade in the root package: `adder.Main` and `adder.Pack` for a repository's own build ([design 18](docs/design.md#18-the-library-api-starts-with-packs-and-extensions)) | ✅ |
 | Register custom template functions and scanners from Go code ([design 42](docs/design.md#42-custom-template-functions-and-scanners)) | ✅ |
 | Run adder from Go, with plans and diagnostics as Go values, for the MCP server and editor integrations ([design 18](docs/design.md#18-the-library-api-starts-with-packs-and-extensions)) | 🔜 launch |
-| Compatibility guarantee for the library API ([design 43](docs/design.md#43-reaching-v10-planned-v10)) | ✅ |
+| Compatibility guarantee for the library API ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
 
 ### Quality and security
 
@@ -164,8 +164,8 @@ Status: ✅ available · 🔜 planned for the milestone shown: v1.0, or the laun
 | Repository hardening: branch and tag rulesets with required checks and reviews, and immutable release tags | ✅ |
 | A test that keeps README examples in sync with the test fixtures, once the documentation site has many examples | 💡 |
 | End-to-end CLI tests with `testscript` ([design 36](docs/design.md#36-testing-adder-itself)) | ✅ |
-| A review of everything v1.0 freezes: schemas, template data and functions, the header, codes, JSON, and the Go API ([design 43](docs/design.md#43-reaching-v10-planned-v10)) | ✅ |
-| A trial on a production codebase with a hand-rolled generator, before the schema freezes ([design 43](docs/design.md#43-reaching-v10-planned-v10)) | ✅ |
+| A review of everything v1.0 freezes: schemas, template data and functions, the header, codes, JSON, and the Go API ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
+| A trial on a production codebase with a hand-rolled generator, before the schema freezes ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
 | Fuzz tests for configuration parsing, header detection, directives, and import pruning ([design 36](docs/design.md#36-testing-adder-itself)) | ✅ |
 | Benchmarks on large repositories with a performance budget ([design 36](docs/design.md#36-testing-adder-itself)) | ✅ |
 | A symlink policy for scans and outputs ([design 26](docs/design.md#26-symlinks)) | ✅ |
@@ -186,18 +186,18 @@ Status: ✅ available · 🔜 planned for the milestone shown: v1.0, or the laun
 | Feature | Status |
 | --- | --- |
 | README with a tested quick start | ✅ |
-| README rewritten to show what adder does, with the reference in `docs/`, one file per topic ([design 43](docs/design.md#43-reaching-v10-planned-v10)) | ✅ |
+| README rewritten to show what adder does, with the reference in `docs/`, one file per topic ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
 | `CHANGELOG.md` following Keep a Changelog, with semantic versioning | ✅ |
 | `CONTRIBUTING.md` with build, test, and code conventions | ✅ |
 | `SECURITY.md` with private vulnerability reporting | ✅ |
 | `CODE_OF_CONDUCT.md`, with a way to report problems that publishes no one's address, at the launch | 🔜 launch |
 | Issue and pull request templates | 🔜 launch |
-| Runnable `examples/` directory, tested in CI: ten single-capability examples, covering every scan kind, `each`, generators, packs, custom scanners, and a monorepo ([design 43](docs/design.md#43-reaching-v10-planned-v10)) | ✅ |
+| Runnable `examples/` directory, tested in CI: ten single-capability examples, covering every scan kind, `each`, generators, packs, custom scanners, and a monorepo ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
 | Documentation site: guides, configuration reference generated from the schema, function reference ([design 35](docs/design.md#35-documentation-and-examples-planned-launch)) | 🔜 launch |
 | Recipes: driver and plugin registries, HTTP routes, CLI commands, gRPC wiring, workflow engines | 🔜 launch |
 | Comparison page: adder versus `go generate`, stencil, plop, hygen, and hand-rolled generators | 🔜 launch |
-| Migration guide from a hand-rolled generator, in `docs/migrating.md` ([design 44](docs/design.md#44-moving-from-a-hand-rolled-generator-planned-v10)) | ✅ |
-| Support and deprecation policy for configuration fields and Go versions, in `docs/compatibility.md` ([design 43](docs/design.md#43-reaching-v10-planned-v10)) | ✅ |
+| Migration guide from a hand-rolled generator, in `docs/migrating.md` ([design 44](docs/design.md#44-moving-from-a-hand-rolled-generator)) | ✅ |
+| Support and deprecation policy for configuration fields and Go versions, in `docs/compatibility.md` ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
 | Deprecation warnings at each use, for adder's own settings, functions, fields, commands, and flags, and for what repositories and packs define ([design 45](docs/design.md#45-deprecation-warnings)) | ✅ |
 | Launch: announcement post, Gophers Slack, r/golang | 🔜 launch |
 

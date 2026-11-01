@@ -121,7 +121,7 @@ go tool adder init
 
 ## Status
 
-adder is close to v1.0. Until then, the configuration may still change, and the [changelog](CHANGELOG.md) says how. From v1.0, it follows semantic versioning, as [compatibility](docs/compatibility.md) describes. See the [roadmap](ROADMAP.md) for what comes next.
+adder is stable. Since v1.0, the configuration, template data and functions, commands, diagnostic codes, JSON output, and Go API follow semantic versioning, as [compatibility](docs/compatibility.md) describes, and the [changelog](CHANGELOG.md) lists every change. See the [roadmap](ROADMAP.md) for what comes next.
 
 ## Contributing
 
