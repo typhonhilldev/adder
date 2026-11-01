@@ -176,10 +176,10 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 
 | Feature | Status |
 | --- | --- |
-| Release automation with GoReleaser and reproducible builds (`-trimpath`), for published binaries ([design 33](docs/design.md#33-releases-planned-launch)) | 🔜 launch |
-| Signed checksums, SBOMs, and build provenance ([design 33](docs/design.md#33-releases-planned-launch)) | 🔜 launch |
-| Homebrew tap ([design 33](docs/design.md#33-releases-planned-launch)) | 🔜 launch |
-| A container image for CI systems without Go | 🔜 launch |
+| Release automation with GoReleaser and reproducible builds (`-trimpath`), for published binaries ([design 33](docs/design.md#33-releases)) | ✅ |
+| Signed checksums, SBOMs, and build provenance ([design 33](docs/design.md#33-releases)) | ✅ |
+| Homebrew tap ([design 33](docs/design.md#33-releases)) | ✅ |
+| A container image for CI systems without Go ([design 33](docs/design.md#33-releases)) | ✅ |
 
 ### Documentation and community
 
