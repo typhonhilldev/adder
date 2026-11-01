@@ -28,10 +28,10 @@ Reports are handled on a best-effort basis, with an acknowledgement within one w
 
 ## Verifying a release
 
-Each release from v1.1.0 is built by the [release workflow](.github/workflows/release.yml) from its tag, and reproducibly, so rebuilding a tag gives the same archives. Its archives have GitHub attestations of where they were built, `checksums.txt` is signed with [cosign](https://docs.sigstore.dev/cosign/), and each archive has an SPDX SBOM. To check a download:
+Each release from v1.1.0 is built by the [release workflow](.github/workflows/release.yml) from its tag, and reproducibly, so rebuilding a tag gives the same archives. Its `checksums.txt` is signed with [cosign](https://docs.sigstore.dev/cosign/), each archive has an SPDX SBOM, and from v1.1.1 the archives have GitHub attestations of where they were built. To check a download:
 
 ```sh
-gh attestation verify adder_1.1.0_linux_amd64.tar.gz --repo typhonhilldev/adder
+gh attestation verify adder_1.1.1_linux_amd64.tar.gz --repo typhonhilldev/adder
 
 cosign verify-blob checksums.txt --bundle checksums.txt.sigstore.json \
   --certificate-identity-regexp '^https://github\.com/typhonhilldev/adder/\.github/workflows/release\.yml@refs/tags/v' \
@@ -42,7 +42,7 @@ sha256sum --ignore-missing -c checksums.txt
 The container image is signed the same way:
 
 ```sh
-cosign verify ghcr.io/typhonhilldev/adder:1.1.0 \
+cosign verify ghcr.io/typhonhilldev/adder:1.1.1 \
   --certificate-identity-regexp '^https://github\.com/typhonhilldev/adder/\.github/workflows/release\.yml@refs/tags/v' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```

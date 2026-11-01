@@ -23,12 +23,16 @@ archives:
         formats: [zip]
     files:
       - src: LICENSE
-        info: {mtime: "{{ .CommitDate }}"}
+        info: {owner: root, group: root, mode: 0o644, mtime: "{{ .CommitDate }}"}
       - src: README.md
-        info: {mtime: "{{ .CommitDate }}"}
+        info: {owner: root, group: root, mode: 0o644, mtime: "{{ .CommitDate }}"}
       - src: CHANGELOG.md
-        info: {mtime: "{{ .CommitDate }}"}
+        info: {owner: root, group: root, mode: 0o644, mtime: "{{ .CommitDate }}"}
+    # Fixed owners and times, so an archive is the same whoever builds it.
     builds_info:
+      owner: root
+      group: root
+      mode: 0o755
       mtime: "{{ .CommitDate }}"
 
 checksum:
@@ -68,7 +72,7 @@ homebrew_casks:
     repository:
       owner: typhonhilldev
       name: homebrew-tap
-      token: "{{ envOrDefault \"HOMEBREW_TAP_TOKEN\" \"\" }}"
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     commit_author:
       name: TyphonHill
       email: 145068975+TyphonHill@users.noreply.github.com

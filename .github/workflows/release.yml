@@ -59,6 +59,19 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
+      - name: Check that the release can be published
+        run: |
+          if [ -z "$HOMEBREW_TAP_TOKEN" ]; then
+            echo "::error::The HOMEBREW_TAP_TOKEN secret is not set, so the cask cannot be pushed to the tap."
+            exit 1
+          fi
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "::error::A release for $GITHUB_REF_NAME already exists. Delete it, keeping the tag, and re-run this job: the workflow creates the release with its notes."
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
       - name: Release notes from the changelog
         run: go run ./internal/tools/releasenotes "$GITHUB_REF_NAME" < CHANGELOG.md > "$RUNNER_TEMP/notes.md"
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
@@ -78,5 +91,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        # Published archives get their attestation even when a later GoReleaser step, such as the cask, failed.
+        if: ${{ !cancelled() && hashFiles('dist/checksums.txt') != '' }}
         with:
           subject-checksums: dist/checksums.txt
