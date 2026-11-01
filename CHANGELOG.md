@@ -4,6 +4,8 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-01
+
 ### Added
 
 - Releases with binaries for Linux, macOS, and Windows on amd64 and arm64, built reproducibly by GoReleaser from the tag, with a signed `checksums.txt`, an SBOM and a build attestation for each archive. `SECURITY.md` shows how to verify them.
@@ -171,7 +173,8 @@ These changes settle names before v1.0 freezes them. Configurations that use an 
 - Diagnostics with stable codes, file positions, and hints; every problem is reported at once.
 - Exit codes: 0 for success, 1 for problems, 2 for usage mistakes, and 3 for stale outputs.
 
-[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/typhonhilldev/adder/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/typhonhilldev/adder/compare/v0.6.0...v1.0.0
 [0.6.0]: https://github.com/typhonhilldev/adder/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/typhonhilldev/adder/compare/v0.5.0...v0.5.1
