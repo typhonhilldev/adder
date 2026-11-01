@@ -430,7 +430,7 @@ Every command accepts `--json`. It writes exactly one JSON object to standard ou
 
 | Considered | Why not |
 | --- | --- |
-| `--format json` or `-o json` | Only one machine format is planned. A `--format` flag can be added later for others, such as GitHub annotations. |
+| `--format json` or `-o json` | Only one machine format was planned at first. `--format` came later with the CI formats, and `--json` stays as its short form ([decision 46](#46-output-formats-for-ci-planned-launch)). |
 | Problems on standard error as JSON lines | Two streams to read and interleave, for no gain when the run produces one result. |
 | A version field in the object | The output follows adder's semantic versioning like everything else in the compatibility promise. |
 
@@ -652,8 +652,9 @@ Pushing a `v*` tag runs GoReleaser in GitHub Actions:
 
 - **`go generate`:** one `//go:generate go tool adder derive` directive anywhere in the module is enough, since adder finds `adder.yaml` from any directory ([decision 12](#12-one-configuration-file-at-the-root)) and `derive` regenerates every output.
 - **pre-commit:** `.pre-commit-hooks.yaml` defines `adder-check` and `adder-derive`, built from source with `language: golang`. They run on every commit and ignore the changed file names, because a change anywhere can affect a scan. The documentation leads with a local hook running `go tool adder` instead, since it uses the version `go.mod` pins and a repository's own build with its packs, which the published hooks cannot.
-- **GitHub Action**, at the launch: `action.yml` at the repository root runs `adder check` by default, or another command. It uses `go tool adder` when `go.mod` declares the tool, and otherwise runs the action's own version with `go run`. Downloading a signed binary instead waits for published releases ([decision 33](#33-releases)). Problems become annotations on the pull request, read from `--json`.
-- **CI jobs:** documented jobs for GitLab CI and GitHub Actions that run `adder check --diff`, and variants that read `--json` with `jq` to show problems, warnings, and out-of-date files on the pull request: as annotations on GitHub, and as a Code Quality report on GitLab. Both read reports with and without directory patterns. An output format of adder's own for these waits for the GitHub Action.
+- **GitHub Action**, at the launch: `action.yml` at the repository root, a composite action, runs `adder check` by default, or the `command` input with extra `args`, always with `--format github` ([decision 46](#46-output-formats-for-ci-planned-launch)). It runs `go tool adder` when `go.mod` declares adder as a tool, including a repository's own build with packs, so CI runs the version the repository pins. Otherwise it downloads the release for the runner, checks it against `checksums.txt` and its attestation with `gh attestation verify`, and runs that; the `version` input picks the release, and defaults to the action's own. Workflows reference the action by an exact version, `typhonhilldev/adder@v1.2.0`, or a commit, and Dependabot proposes each new release: the repository's tags never move ([decision 33](#33-releases)), so there is no `@v1` tag, which is also how a compromised action reaches every workflow at once.
+- **GitLab CI job**, at the launch: `ci/gitlab/adder.yml`, a configuration file with `spec:inputs` (`version`, `command`, `args`, `stage`, `working-directory`) that a repository includes with `include:remote` from a release tag, with its `integrity` hash, which a test keeps in step with the documentation. The job runs in the release's image and uses `go tool adder` when `go.mod` declares it, writing a Code Quality report with `--format gitlab`. GitLab also has a CI/CD Catalog, a searchable directory of reusable jobs like GitHub's Marketplace. A job listed there must live in a project on gitlab.com and be released from it, which would mean a second project to keep in step with each release. The included file works the same for users, so a catalog listing waits until GitLab users ask for it.
+- **CI jobs:** documented jobs for GitLab CI and GitHub Actions that run `adder check --diff`, and variants that read `--json` with `jq` to show problems, warnings, and out-of-date files on the pull request: as annotations on GitHub, and as a Code Quality report on GitLab. Both read reports with and without directory patterns. `--format github` and `--format gitlab` replace the `jq` ([decision 46](#46-output-formats-for-ci-planned-launch)).
 - **Coding agents:** a guide in `docs/agents.md`, and an `AGENTS.md` section to copy into a repository. It tells agents to discover generators with `adder list --json` and `adder describe`, preview with `--dry-run --json`, run `adder derive` after adding code, never edit files marked `DO NOT EDIT`, and use `adder explain` to find the template to change instead.
 
 ### 35. Documentation and examples (planned, launch)
@@ -1031,6 +1032,36 @@ adder's own deprecations are tables in the code, empty until something is deprec
 | Hiding deprecated flags from completion | Cobra hides only flags marked with its own `Deprecated`, which prints to the output. |
 
 **Known limits.** adder's own tables are empty, so three cases cannot occur yet, and are left for when the first deprecation needs them: a deprecated value that reaches a pack through an option is not reported, since `pack.yaml` is checked before options fill it in; YAML anchors, aliases, and merge keys are matched as written rather than as resolved; and a global flag such as `--verbose` can be deprecated only under each command's path, without a note in its help.
+
+### 46. Output formats for CI (planned, launch)
+
+`--format` chooses how a command reports, on every command:
+
+| Format | Output |
+| --- | --- |
+| `text` | The default: what adder prints today. |
+| `json` | One JSON object ([decision 22](#22-json-output)). `--json` is its short form. |
+| `github` | The text output, plus a [workflow command](https://docs.github.com/actions/reference/workflows-and-actions/workflow-commands) on standard output for each problem, warning, and out-of-date output, which GitHub shows as annotations on the pull request. |
+| `gitlab` | A [Code Quality](https://docs.gitlab.com/ci/testing/code_quality/) report on standard output, to save as the job's `codequality` report, which GitLab shows in the merge request. |
+
+- Each annotation is at the diagnostic's position and names its code: `::error file=api/routes.go,line=3,col=2,title=adder: go-syntax::expected 'IDENT'`. Problems are errors and warnings are warnings. A position inside a pack has no file in the repository, so its annotation has none either, and appears on the run instead of a line.
+- An output that `adder check` finds out of date is an error at its path, titled `out-of-date`. That name belongs to the formats, not to the diagnostic codes: out-of-date outputs are changes, not problems, in every other format.
+- Paths are relative to the repository root, `GITHUB_WORKSPACE` or `CI_PROJECT_DIR`, or else the current directory, so annotations land on the right files in a monorepo and from a subdirectory.
+- The Code Quality report gives problems the severity `major` and warnings `minor`, and each entry a fingerprint from its code, path, line, and message, so GitLab tracks it across runs.
+- Exit codes are the same in every format. `--json` with another `--format` is a usage error.
+- `--format json` is how the documentation asks for JSON, with `--json` kept as its short form. `--json` is planned for removal in v2. It is deprecated, with a warning, only once `--format json` has been out for a few releases, and once a global flag can be deprecated with a note in its help ([decision 45](#45-deprecation-warnings)), so that the warning points at a replacement every adder in use already has.
+- GitHub limits how many annotations a step shows on the pull request; every one is still in the log.
+
+adder only writes these formats when asked. The [GitHub Action](#34-integrations-and-coding-agents-planned-launch) passes `--format github`.
+
+**Why:** the `jq` that turned `--json` into annotations was long, and every repository would copy it. The formats are small and stable, GitHub's and GitLab's own, and adder already has every position they need.
+
+| Considered | Why not |
+| --- | --- |
+| Annotations whenever `GITHUB_ACTIONS` is set | Changes the output of existing CI steps that never asked for it. |
+| Only annotations with `--format github`, without the text output | The log is where people read a failure first, and GitHub shows only so many annotations per step. |
+| `out-of-date` as a diagnostic code | Out-of-date outputs are changes in every other format, with exit code 3 rather than 1, and a code would report them as problems in some places and changes in others. |
+| A SARIF format | Code scanning is for security findings that persist; adder's problems are fixed in the same pull request. |
 
 ## Compatibility
 

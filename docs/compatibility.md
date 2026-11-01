@@ -14,11 +14,12 @@ From v1.0, adder follows [semantic versioning](https://semver.org/). A configura
 | Commands and flags | Names, arguments, and meaning. New commands and flags may be added. |
 | Problems and exit codes | Every diagnostic code keeps its meaning, and the exit codes keep theirs. New codes may be added. |
 | JSON output | Every field keeps its name and meaning. New fields may be added, so read JSON in a way that ignores fields it does not know. |
+| CI formats | `--format github` and `--format gitlab` keep their annotations' fields and severities, and the name `out-of-date`. |
 | Go API | The root package, `typhonhill.dev/adder`: `Main`, `Pack`, `Scanner`, `ScanInput`, and `Problem`. Fields may be added to the structs, so write them with field names, as in `adder.Pack{Name: "local"}`. |
 
 ## What is not covered
 
-- The wording of messages and hints, and the human-readable output of commands, which may improve in any release. Scripts should read `--json` and match on codes.
+- The wording of messages and hints, and the human-readable output of commands, which may improve in any release. Scripts should read `--format json` and match on codes.
 - Formatting by gofmt. adder formats Go outputs with the `go/format` package of the Go release it was built with, so a new Go release can change formatting slightly, as it would for `gofmt` itself.
 - Bugs. A fix that changes what adder writes is listed under **Fixed** in the [changelog](../CHANGELOG.md), and `adder check` reports the outputs it changes.
 - Packages under `internal/`, which no other module can import.

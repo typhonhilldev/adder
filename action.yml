@@ -1,0 +1,46 @@
+name: adder
+description: Check that a Go repository's derived files are current, and show adder's problems as annotations.
+author: TyphonHill
+branding:
+  icon: refresh-cw
+  color: green
+
+inputs:
+  command:
+    description: The adder command to run, such as check or derive.
+    default: check
+  args:
+    description: Arguments after the command, separated by spaces, such as ./... or --diff.
+    default: ""
+  version:
+    description: >-
+      The adder release to download when go.mod does not declare adder as a tool, such as v1.2.0. It defaults to
+      the release the action is referenced by.
+    default: ""
+  working-directory:
+    description: The directory to run adder in.
+    default: .
+
+runs:
+  using: composite
+  steps:
+    - id: install
+      name: Find adder
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: "$GITHUB_ACTION_PATH/.github/action/install.sh"
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+        ACTION_REF: ${{ github.action_ref }}
+        GH_TOKEN: ${{ github.token }}
+    - name: Run adder
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ -n "$ADDER" ]; then adder=("$ADDER"); else adder=(go tool adder); fi
+        read -ra args <<< "$ARGS"
+        "${adder[@]}" "$COMMAND" "${args[@]}" --format github
+      env:
+        ADDER: ${{ steps.install.outputs.path }}
+        COMMAND: ${{ inputs.command }}
+        ARGS: ${{ inputs.args }}

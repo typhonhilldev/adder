@@ -63,7 +63,8 @@ Flags:
 
 Global Flags:
   -c, --config string   configuration file (default <root>/adder.yaml)
-      --json            print the result and any problems as one JSON object on standard output
+      --format string   how to report: text, json for one JSON object, github for GitHub Actions annotations, or gitlab for a GitLab Code Quality report (default "text")
+      --json            short for --format json
   -q, --quiet           print only problems
       --root string     repository root that scans and outputs are relative to (default: the directory holding adder.yaml, found from the current directory)
   -v, --verbose         also print unchanged files and how many items each scan found

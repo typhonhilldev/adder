@@ -508,24 +508,29 @@ func TestCLI(t *testing.T) {
 	}
 }
 
-func TestWantsJSON(t *testing.T) {
+func TestFormatArg(t *testing.T) {
 	tests := []struct {
 		name string
 		args []string
-		want bool
+		want string
 	}{
-		{name: "absent", args: []string{"derive"}, want: false},
-		{name: "flag", args: []string{"derive", "--json"}, want: true},
-		{name: "before the command", args: []string{"--json", "new", "driver"}, want: true},
-		{name: "explicit false", args: []string{"--json=false"}, want: false},
-		{name: "last one wins", args: []string{"--json", "--json=0"}, want: false},
-		{name: "invalid value", args: []string{"--json=maybe"}, want: false},
-		{name: "after --", args: []string{"new", "driver", "--", "--json"}, want: false},
+		{name: "absent", args: []string{"derive"}, want: formatText},
+		{name: "json", args: []string{"derive", "--json"}, want: formatJSON},
+		{name: "before the command", args: []string{"--json", "new", "driver"}, want: formatJSON},
+		{name: "json explicitly false", args: []string{"--json=false"}, want: formatText},
+		{name: "the last json wins", args: []string{"--json", "--json=0"}, want: formatText},
+		{name: "an invalid json value", args: []string{"--json=maybe"}, want: formatText},
+		{name: "after --", args: []string{"new", "driver", "--", "--json"}, want: formatText},
+		{name: "format", args: []string{"check", "--format", "github"}, want: formatGitHub},
+		{name: "format with =", args: []string{"check", "--format=gitlab"}, want: formatGitLab},
+		{name: "format json", args: []string{"check", "--format", "json"}, want: formatJSON},
+		{name: "an unknown format", args: []string{"check", "--format", "xml"}, want: formatText},
+		{name: "format without a value", args: []string{"check", "--format"}, want: formatText},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := wantsJSON(tt.args); got != tt.want {
-				t.Errorf("wantsJSON(%q) = %v, want %v", tt.args, got, tt.want)
+			if got := formatArg(tt.args); got != tt.want {
+				t.Errorf("formatArg(%q) = %q, want %q", tt.args, got, tt.want)
 			}
 		})
 	}

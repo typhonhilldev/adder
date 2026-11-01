@@ -20,7 +20,8 @@ adder finds `adder.yaml` in the current directory or the nearest parent with one
 | --- | --- | --- |
 | `--root <dir>` | all | Repository root, holding `adder.yaml`. |
 | `-c`, `--config <file>` | all | Configuration file. The root is its directory, unless `--root` says otherwise. |
-| `--json` | all | Print one JSON object on standard output. See [JSON output](#json-output). |
+| `--format <format>` | all | How to report: `text`, the default, `json` for one JSON object ([JSON output](#json-output)), or `github` or `gitlab` for CI ([CI formats](#ci-formats)). |
+| `--json` | all | Short for `--format json`. |
 | `-q`, `--quiet` | all | Print only problems, and diffs asked for with `--diff`. |
 | `-v`, `--verbose` | all | Also print unchanged files, and for `derive` and `check`, how many items each scan found. |
 | `-n`, `--dry-run` | `derive`, `new` | Show what would change without writing anything. |
@@ -73,10 +74,10 @@ The codes are listed in [design 4](design.md#4-structured-diagnostics).
 
 ## JSON output
 
-With `--json`, every command that runs prints exactly one JSON object on standard output and nothing on standard error, whether it succeeds or fails, with the same exit codes. Help, shell completion, and `adder new` without a generator print text as usual; `adder list --json` lists the generators. Scripts and coding agents can drive adder without parsing text:
+With `--format json`, every command that runs prints exactly one JSON object on standard output and nothing on standard error, whether it succeeds or fails, with the same exit codes. Help, shell completion, and `adder new` without a generator print text as usual; `adder list --format json` lists the generators. Scripts and coding agents can drive adder without parsing text:
 
 ```console
-$ adder new command name=report withTest --dry-run --json
+$ adder new command name=report withTest --dry-run --format json
 {
   "generator": "command",
   "dryRun": true,
@@ -108,4 +109,15 @@ $ adder new command name=report withTest --dry-run --json
 - With directory patterns, the object has `configs`, one entry per configuration with its `config` path and the command's fields, and `problems` for anything that concerns no one configuration.
 - `describe`'s `inputSchema` is a JSON Schema (draft 2020-12) for the object `--inputs` accepts, the shape MCP uses for tool inputs.
 
-A coding agent can find and run any generator this way: `adder list --json`, then `adder describe <generator> --json`, then `adder new <generator> --inputs - --dry-run --json` to preview, and the same without `--dry-run` to write.
+A coding agent can find and run any generator this way: `adder list --format json`, then `adder describe <generator> --format json`, then `adder new <generator> --inputs - --dry-run --format json` to preview, and the same without `--dry-run` to write.
+
+`--json` is short for `--format json`, and is planned for removal in v2.
+
+## CI formats
+
+`--format github` and `--format gitlab` report problems, warnings, and the outputs `adder check` finds out of date where the CI system shows them, with paths relative to the repository root (`GITHUB_WORKSPACE` or `CI_PROJECT_DIR`). Exit codes are the same as with any other format.
+
+- `github` prints the usual text output, plus a [workflow command](https://docs.github.com/actions/reference/workflows-and-actions/workflow-commands) for each finding, which GitHub shows as an annotation on the pull request: `::error file=drivers/drivers.gen.go,title=adder%3A out-of-date::drivers/drivers.gen.go is out of date; run adder derive`. Problems are errors and warnings are warnings, titled with their code.
+- `gitlab` prints only a [Code Quality](https://docs.gitlab.com/ci/testing/code_quality/) report on standard output, and the text output on standard error. Problems are `major`, warnings `minor`, and each entry has a fingerprint so GitLab can follow it across runs.
+
+An out-of-date output is titled `out-of-date`, a name of these formats rather than a diagnostic code. [Integrations](integrations.md) shows both in CI jobs.

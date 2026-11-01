@@ -1,0 +1,34 @@
+# adder for GitLab CI: a job that runs adder check and reports problems, warnings, and out-of-date outputs in the
+# merge request, as a Code Quality report. Include it from the release you want, with its integrity hash, as
+# https://github.com/typhonhilldev/adder/blob/main/docs/integrations.md#gitlab-ci shows.
+spec:
+  inputs:
+    version:
+      description: The adder release whose image the job runs in, such as 1.2.0.
+    command:
+      description: The adder command to run, such as check or derive.
+      default: check
+    args:
+      description: Arguments after the command, separated by spaces, such as ./... or --diff.
+      default: ""
+    stage:
+      description: The stage the job runs in.
+      default: test
+    working-directory:
+      description: The directory to run adder in, relative to the repository root.
+      default: .
+---
+adder:
+  stage: $[[ inputs.stage ]]
+  image:
+    name: ghcr.io/typhonhilldev/adder:$[[ inputs.version ]]
+    entrypoint: [""]
+  script:
+    - cd "$[[ inputs.working-directory ]]"
+    # The adder go.mod declares as a tool, with a repository's packs, or else the image's.
+    - if go tool -n adder > /dev/null 2>&1; then adder="go tool adder"; else adder=adder; fi
+    - $adder $[[ inputs.command ]] $[[ inputs.args ]] --format gitlab > "$CI_PROJECT_DIR/gl-code-quality-report.json"
+  artifacts:
+    when: always
+    reports:
+      codequality: gl-code-quality-report.json
