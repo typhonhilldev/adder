@@ -4,6 +4,10 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-01
+
+The first stable release. From here, the configuration, template data and functions, the generated-code header, commands, diagnostic codes, exit codes, JSON output, and the Go API follow semantic versioning, as [docs/compatibility.md](docs/compatibility.md) describes.
+
 ### Added
 
 - `examples/`: ten small repositories, each showing one thing adder does and named after it, from `registry-from-functions` and `enum-strings` to `scaffold-with-generator`, `shared-pack`, `custom-scanner`, and `monorepo`. Each README says what the example shows and how, and adder's tests check and build every example with adder from the same commit.
@@ -157,7 +161,8 @@ These changes settle names before v1.0 freezes them. Configurations that use an 
 - Diagnostics with stable codes, file positions, and hints; every problem is reported at once.
 - Exit codes: 0 for success, 1 for problems, 2 for usage mistakes, and 3 for stale outputs.
 
-[Unreleased]: https://github.com/typhonhilldev/adder/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/typhonhilldev/adder/compare/v0.6.0...v1.0.0
 [0.6.0]: https://github.com/typhonhilldev/adder/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/typhonhilldev/adder/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/typhonhilldev/adder/compare/v0.4.0...v0.5.0

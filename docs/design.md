@@ -237,7 +237,7 @@ Scanners also get `ScanInput` and `Problem` ([decision 42](#42-custom-template-f
 
 `cmd/adder` is `func main() { adder.Main() }`. `--version` reports the version of the adder module from build information, in a repository's own build too.
 
-The API is experimental until v1.0. Running adder from Go, such as loading a configuration and getting a plan back as Go values, waits for a consumer that needs it, such as an editor integration or an MCP server. Until then `--json` is the interface for tools. The internal packages stay internal.
+Running adder from Go, such as loading a configuration and getting a plan back as Go values, waits for a consumer that needs it, such as an editor integration or an MCP server. Until then `--json` is the interface for tools. The internal packages stay internal.
 
 | Considered | Why not |
 | --- | --- |
@@ -601,7 +601,7 @@ generators:
 
 **Why:** a generator is code that a team relies on, and templates break silently when a scan field or function changes. Golden files make a generator's output reviewable in pull requests.
 
-### 31. Checking the configuration (planned, v1.0)
+### 31. Checking the configuration
 
 **JSON Schemas for `adder.yaml` and `pack.yaml`.** `schema/adder-v1.json` describes `adder.yaml` for `version: 1`, and `schema/pack-v1.json` describes `pack.yaml`, both in draft-07, which editors support best. `adder init` writes a `# yaml-language-server: $schema=` line pointing at `https://typhonhill.dev/adder/schema/adder-v1.json`, and the examples carry the same line, so the URLs must never move. They are on the project's own domain, like the module path, so that moving the repository does not break every `adder.yaml` that points at them. The site serves copies of the files in `schema/`, and a workflow fails when the copies differ from `main`, checked on every change to `schema/` and weekly. A SchemaStore listing for files named `adder.yaml` waits for the launch, once v1.0 has made the schema stable.
 
@@ -644,7 +644,7 @@ Pushing a `v*` tag runs GoReleaser in GitHub Actions:
 | A Homebrew formula | GoReleaser now publishes prebuilt binaries to Homebrew as casks and has deprecated formulas for them. |
 | Version set with `-ldflags -X` | Duplicates what Go's build information already records. |
 
-### 34. Integrations and coding agents (planned, v1.0 and launch)
+### 34. Integrations and coding agents (planned, launch)
 
 - **`go generate`:** one `//go:generate go tool adder derive` directive anywhere in the module is enough, since adder finds `adder.yaml` from any directory ([decision 12](#12-one-configuration-file-at-the-root)) and `derive` regenerates every output.
 - **pre-commit:** `.pre-commit-hooks.yaml` defines `adder-check` and `adder-derive`, built from source with `language: golang`. They run on every commit and ignore the changed file names, because a change anywhere can affect a scan. The documentation leads with a local hook running `go tool adder` instead, since it uses the version `go.mod` pins and a repository's own build with its packs, which the published hooks cannot.
@@ -656,11 +656,11 @@ Pushing a `v*` tag runs GoReleaser in GitHub Actions:
 
 - **Site:** built with Hugo and the Hextra theme from `site/` and deployed to GitHub Pages from `main`. Hugo is a single Go binary and Hextra installs as a Hugo module, so the documentation needs no Node toolchain. The site holds guides, references, recipes, a comparison with other tools, and a guide to migrating from a hand-rolled generator.
 - **References are generated:** the configuration reference comes from the JSON Schema and the function reference from the function table, by a program in `internal/tools/docgen`. Function examples run as tests, and a test fails when the generated pages are out of date, the same way `adder check` does.
-- **Examples:** the examples v1.0 adds to `examples/` ([decision 43](#43-reaching-v10-planned-v10)) grow to cover more cases, such as CLI commands and workflow engine wiring, and recipes on the site walk through them.
+- **Examples:** the examples v1.0 adds to `examples/` ([decision 43](#43-reaching-v10)) grow to cover more cases, such as CLI commands and workflow engine wiring, and recipes on the site walk through them.
 - **Comparisons** state the version of each tool compared and the date, and link to its documentation.
 - **Issues and pull requests** use templates: bug reports ask for `adder --version`, the relevant `adder.yaml`, the command, and its output.
 
-Before then, the README and `docs/` are the documentation ([decision 43](#43-reaching-v10-planned-v10)), and the site renders the same `docs/` files.
+Before then, the README and `docs/` are the documentation ([decision 43](#43-reaching-v10)), and the site renders the same `docs/` files.
 
 ### 36. Testing adder itself
 
@@ -930,7 +930,7 @@ type Problem struct {
 
 **Why:** a repository's code sometimes holds information no general scan can find, such as routes registered in a call chain or names in a non-Go file format. Custom functions and scanners let a repository or pack handle those cases without adder growing a feature for each.
 
-### 43. Reaching v1.0 (planned, v1.0)
+### 43. Reaching v1.0
 
 v1.0 makes the promises in [Compatibility](#compatibility), detailed in [`compatibility.md`](compatibility.md), binding, so it is about getting them right rather than adding features. Four steps come before the release, in this order, because each can change what the next one describes.
 
@@ -949,7 +949,7 @@ Each change the review proposes is decided on its own. Those accepted ship befor
 
 **2. Try adder on a production codebase.** adder replaces the hand-rolled generator of a large repository in a local trial before the schema freezes, since a real generator is the best test of whether the schema is right. Nothing from that repository is published. What the trial finds comes back as general changes to adder, with examples of its own.
 
-The trial replaced a generator of about 430 lines of Go with 68 lines of `adder.yaml`. Every derived file matched the old generator's output byte for byte, apart from the header, and its tests passed. It found no reason to change the schema, and one thing that makes moving to adder harder than it should be: old generated files block `adder derive` with a hint that does not say why. adder now explains the refusal, and the move is documented ([decision 44](#44-moving-from-a-hand-rolled-generator-planned-v10)).
+The trial replaced a generator of about 430 lines of Go with 68 lines of `adder.yaml`. Every derived file matched the old generator's output byte for byte, apart from the header, and its tests passed. It found no reason to change the schema, and one thing that makes moving to adder harder than it should be: old generated files block `adder derive` with a hint that does not say why. adder now explains the refusal, and the move is documented ([decision 44](#44-moving-from-a-hand-rolled-generator)).
 
 **3. Rewrite the documentation, with examples.** The README became a short front door, in the manner of well-known Go projects: a tagline, what adder does in three steps, one example, a list of features, installation, and links. The reference moved to `docs/`, one file per topic:
 
@@ -960,7 +960,7 @@ The trial replaced a generator of about 430 lines of Go with 68 lines of `adder.
 | `docs/templates.md` | Template data, scan items, and functions. |
 | `docs/extending.md` | A repository's own build, packs, functions, and scanners. |
 | `docs/commands.md` | Commands and flags, monorepos, exit codes, and JSON output. |
-| `docs/migrating.md` | Moving from a hand-rolled generator ([decision 44](#44-moving-from-a-hand-rolled-generator-planned-v10)). |
+| `docs/migrating.md` | Moving from a hand-rolled generator ([decision 44](#44-moving-from-a-hand-rolled-generator)). |
 | `docs/compatibility.md` | What v1.0 promises, and the support and deprecation policy. |
 | `docs/integrations.md` | go generate, pre-commit, GitHub Actions, and GitLab CI. |
 | `docs/agents.md` | How coding agents find and run generators. |
@@ -981,7 +981,7 @@ GitHub renders these today, and the documentation site at the launch ([decision 
 | Keeping the reference in the README | Seven hundred lines that mix a pitch, a tutorial, and a reference serve none of them well. |
 | A code of conduct in v1.0 | It matters once others join, which the launch invites. It arrives then, with a way to report problems that publishes no one's address. |
 
-### 44. Moving from a hand-rolled generator (planned, v1.0)
+### 44. Moving from a hand-rolled generator
 
 A repository moving to adder already has the files its old generator wrote. adder never replaces a file without its header ([decision 8](#8-the-generated-code-header-is-frozen)), and that stays true: moving is a one-time step, done in one change.
 
@@ -1031,5 +1031,3 @@ adder's own deprecations are tables in the code, empty until something is deprec
 ## Compatibility
 
 From v1.0, semantic versioning covers the `adder.yaml` and `pack.yaml` schemas, template data and functions, the generated-code header, commands and flags, diagnostic codes, exit codes, JSON output, and the root package's Go API. It does not cover the wording of messages or gofmt's formatting. [`compatibility.md`](compatibility.md) states each promise, its exceptions, and the deprecation and Go version policies, and tests named `TestFrozen...` pin the lists it freezes.
-
-Before v1.0, any of these may change, and the changelog will say so.

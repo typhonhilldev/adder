@@ -24,8 +24,6 @@
 //
 // Then go get -tool ./tools/adder adds it as a tool, in place of typhonhill.dev/adder/cmd/adder, and
 // go tool adder runs it.
-//
-// This API is experimental until v1.0.
 package adder
 
 import (
