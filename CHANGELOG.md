@@ -4,6 +4,8 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-01
+
 ### Fixed
 
 - v1.1.0's release job stopped before publishing the Homebrew cask and the build attestations, on a template function GoReleaser does not have. The release job now checks that it can publish before it starts, and attests the archives even when a later step fails.
@@ -178,7 +180,8 @@ These changes settle names before v1.0 freezes them. Configurations that use an 
 - Diagnostics with stable codes, file positions, and hints; every problem is reported at once.
 - Exit codes: 0 for success, 1 for problems, 2 for usage mistakes, and 3 for stale outputs.
 
-[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/typhonhilldev/adder/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/typhonhilldev/adder/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/typhonhilldev/adder/compare/v0.6.0...v1.0.0
 [0.6.0]: https://github.com/typhonhilldev/adder/compare/v0.5.1...v0.6.0
