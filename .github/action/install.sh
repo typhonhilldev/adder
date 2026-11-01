@@ -39,7 +39,9 @@ dir="${RUNNER_TEMP:-/tmp}/adder-$version"
 mkdir -p "$dir"
 cd "$dir"
 gh release download "$version" --repo typhonhilldev/adder --pattern "$asset" --pattern checksums.txt --clobber
-grep " $asset\$" checksums.txt | shasum -a 256 -c -
+# sha256sum on Linux and in Git Bash on Windows, shasum on macOS.
+if command -v sha256sum > /dev/null; then sum=(sha256sum); else sum=(shasum -a 256); fi
+grep " $asset\$" checksums.txt | "${sum[@]}" -c -
 if ! gh attestation verify "$asset" --repo typhonhilldev/adder > /dev/null; then
   echo "::error title=adder::$asset has no valid attestation from adder's release workflow. Releases before v1.1.1 have none; use a later one."
   exit 1
