@@ -662,7 +662,7 @@ Pushing a `v*` tag runs GoReleaser in GitHub Actions:
 - **References are generated:** the configuration reference comes from the JSON Schema and the function reference from the function table, by a program in `internal/tools/docgen`. Function examples run as tests, and a test fails when the generated pages are out of date, the same way `adder check` does.
 - **Examples:** the examples v1.0 adds to `examples/` ([decision 43](#43-reaching-v10)) grow to cover more cases, such as CLI commands and workflow engine wiring, and recipes on the site walk through them.
 - **Comparisons** state the version of each tool compared and the date, and link to its documentation.
-- **Issues and pull requests** use templates: bug reports ask for `adder --version`, the relevant `adder.yaml`, the command, and its output.
+- **Issues and pull requests** use templates: the bug report form asks for `adder --version`, how adder is installed, the relevant `adder.yaml`, the command, and its output, and the feature request form asks for the problem before the proposal. Questions go to Discussions, vulnerabilities to private advisories, and conduct reports to `conduct@typhonhill.dev`, an address on the project's domain rather than anyone's own.
 
 Before then, the README and `docs/` are the documentation ([decision 43](#43-reaching-v10)), and the site renders the same `docs/` files.
 

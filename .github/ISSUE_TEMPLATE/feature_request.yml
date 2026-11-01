@@ -1,0 +1,34 @@
+name: Feature request
+description: Suggest something adder should do, or do differently.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. The [roadmap](https://github.com/typhonhilldev/adder/blob/main/ROADMAP.md) lists what is planned, what adder will not do, and the principles every feature follows; checking it first saves a round trip.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do, and where adder gets in the way. A real example helps most.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: How adder could solve it, such as a setting, a template function, or a command, with an example of how you would use it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do today
+      description: How you work around it now, and other approaches you considered.
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Fit
+      options:
+        - label: I checked the roadmap's principles and non-goals, and this is not one of the non-goals.
+          required: true

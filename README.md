@@ -3,6 +3,7 @@
 [![CI](https://github.com/typhonhilldev/adder/actions/workflows/ci.yml/badge.svg)](https://github.com/typhonhilldev/adder/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/typhonhill.dev/adder.svg)](https://pkg.go.dev/typhonhill.dev/adder)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/typhonhilldev/adder/badge)](https://scorecard.dev/viewer/?uri=github.com/typhonhilldev/adder)
 
 **Go boilerplate that maintains itself.**
 
@@ -127,7 +128,7 @@ adder is stable. Since v1.0, the configuration, template data and functions, com
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+Questions are welcome in [Discussions](https://github.com/typhonhilldev/adder/discussions), and bugs and ideas in [issues](https://github.com/typhonhilldev/adder/issues/new/choose). See [CONTRIBUTING.md](CONTRIBUTING.md) to work on adder itself. Everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## License
 

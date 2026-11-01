@@ -4,6 +4,14 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+### Added
+
+- Each release carries its build attestation as `adder_<version>.intoto.jsonl`, for checking offline.
+
+### Changed
+
+- `golang.org/x/text`, which only adder's tests use, is updated to v0.43.0, past two advisories that `govulncheck` finds unreachable from adder.
+
 ## [1.1.3] - 2026-11-01
 
 ### Fixed

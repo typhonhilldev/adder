@@ -1,6 +1,8 @@
 # Contributing
 
-Thanks for helping improve adder. This guide covers how to build and test it and the conventions the code follows. [docs/design.md](docs/design.md) explains how adder is built and why.
+Thanks for helping improve adder. This guide covers how to build and test it and the conventions the code follows. [docs/design.md](docs/design.md) explains how adder is built and why, and everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md).
+
+Ask questions in [Discussions](https://github.com/typhonhilldev/adder/discussions), and report bugs and suggest features with the [issue forms](https://github.com/typhonhilldev/adder/issues/new/choose). For a change bigger than a fix, open an issue first, so the approach can be agreed before the code is written. Report vulnerabilities privately, as [SECURITY.md](SECURITY.md) describes.
 
 ## Getting started
 
