@@ -113,7 +113,7 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | Structured diagnostics with stable codes, positions, and hints | ✅ |
 | JSON output for every command ([design 22](docs/design.md#22-json-output)) | ✅ |
 | `adder explain <file>`: which configuration and template produced a generated file ([design 23](docs/design.md#23-discovering-generators-and-outputs)) | ✅ |
-| A guide and a ready-made `AGENTS.md` section for repositories that use coding agents ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
+| A guide and a ready-made `AGENTS.md` section for repositories that use coding agents ([design 34](docs/design.md#34-integrations-and-coding-agents)) | ✅ |
 | `adder mcp`: an MCP server exposing generators as tools, read-only unless asked to write | 🔜 launch |
 
 ### Command line
@@ -136,10 +136,12 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | Feature | Status |
 | --- | --- |
 | `go get -tool` and `go tool adder` | ✅ |
-| Documented `//go:generate go tool adder derive` usage ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
-| A pre-commit hook definition (`.pre-commit-hooks.yaml`) ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
-| A GitHub Action that runs `adder check` on pull requests ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | 🔜 launch |
-| Documented CI jobs for GitLab CI and GitHub Actions, running `adder check` ([design 34](docs/design.md#34-integrations-and-coding-agents-planned-launch)) | ✅ |
+| Documented `//go:generate go tool adder derive` usage ([design 34](docs/design.md#34-integrations-and-coding-agents)) | ✅ |
+| A pre-commit hook definition (`.pre-commit-hooks.yaml`) ([design 34](docs/design.md#34-integrations-and-coding-agents)) | ✅ |
+| A GitHub Action that runs `adder check` on pull requests ([design 34](docs/design.md#34-integrations-and-coding-agents)) | ✅ |
+| A GitLab CI job to include from a release ([design 34](docs/design.md#34-integrations-and-coding-agents)) | ✅ |
+| `--format github` and `--format gitlab`: annotations on pull requests and merge requests ([design 46](docs/design.md#46-output-formats-for-ci)) | ✅ |
+| Documented CI jobs for GitLab CI and GitHub Actions, running `adder check` ([design 34](docs/design.md#34-integrations-and-coding-agents)) | ✅ |
 | Generator packs: generators, derive outputs, and templates shared across repositories as versioned Go packages ([design 41](docs/design.md#41-generator-packs)) | ✅ |
 
 ### Library API
@@ -170,7 +172,7 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | Benchmarks on large repositories with a performance budget ([design 36](docs/design.md#36-testing-adder-itself)) | ✅ |
 | A symlink policy for scans and outputs ([design 26](docs/design.md#26-symlinks)) | ✅ |
 | CodeQL | ✅ |
-| OpenSSF Scorecard | 🔜 launch |
+| OpenSSF Scorecard | ✅ |
 
 ### Distribution
 
@@ -190,8 +192,8 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | `CHANGELOG.md` following Keep a Changelog, with semantic versioning | ✅ |
 | `CONTRIBUTING.md` with build, test, and code conventions | ✅ |
 | `SECURITY.md` with private vulnerability reporting | ✅ |
-| `CODE_OF_CONDUCT.md`, with a way to report problems that publishes no one's address, at the launch | 🔜 launch |
-| Issue and pull request templates | 🔜 launch |
+| `CODE_OF_CONDUCT.md`, with a way to report problems that publishes no one's address | ✅ |
+| Issue and pull request templates | ✅ |
 | Runnable `examples/` directory, tested in CI: ten single-capability examples, covering every scan kind, `each`, generators, packs, custom scanners, and a monorepo ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
 | Documentation site: guides, configuration reference generated from the schema, function reference ([design 35](docs/design.md#35-documentation-and-examples-planned-launch)) | 🔜 launch |
 | Recipes: driver and plugin registries, HTTP routes, CLI commands, gRPC wiring, workflow engines | 🔜 launch |
