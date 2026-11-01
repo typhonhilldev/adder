@@ -60,7 +60,7 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | Type-aware matching, opted into per scan with `typeCheck: true`: types that implement an interface, and type matches that survive any import alias ([design 17](docs/design.md#17-type-aware-scans-are-an-explicit-opt-in), [37](docs/design.md#37-loading-types)) | ✅ |
 | Scan constants and variables, for enums and lookup tables ([design 38](docs/design.md#38-constant-and-variable-scans)) | ✅ |
 | File scans: list non-Go files such as SQL migrations or JSON fixtures ([design 39](docs/design.md#39-file-scans)) | ✅ |
-| Parallel parsing and caching for very large repositories | 🔜 launch |
+| Parallel parsing and caching for very large repositories, if `derive` misses its performance budget ([design 36](docs/design.md#36-testing-adder-itself)) | 💡 |
 
 ### Rendering and outputs
 
@@ -149,7 +149,7 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | Internal pipeline built on plans, `fs.FS`, and `context.Context`, ready to expose | ✅ |
 | A public facade in the root package: `adder.Main` and `adder.Pack` for a repository's own build ([design 18](docs/design.md#18-the-library-api-starts-with-packs-and-extensions)) | ✅ |
 | Register custom template functions and scanners from Go code ([design 42](docs/design.md#42-custom-template-functions-and-scanners)) | ✅ |
-| Run adder from Go, with plans and diagnostics as Go values, for the MCP server and editor integrations ([design 18](docs/design.md#18-the-library-api-starts-with-packs-and-extensions)) | 🔜 launch |
+| Run adder from Go, with plans and diagnostics as Go values, once an editor integration needs it ([design 18](docs/design.md#18-the-library-api-starts-with-packs-and-extensions)) | 💡 |
 | Compatibility guarantee for the library API ([design 43](docs/design.md#43-reaching-v10)) | ✅ |
 
 ### Quality and security

@@ -159,6 +159,9 @@ func printDescription(w io.Writer, d *scaffold.Description) {
 	fmt.Fprintln(tw, "files")
 	for _, f := range d.Files {
 		from := "from " + f.Template
+		if f.Pack != "" {
+			from += " in pack " + f.Pack
+		}
 		switch {
 		case f.When != "":
 			from += ", when " + f.When

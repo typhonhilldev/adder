@@ -30,6 +30,10 @@ stdout '^  pack      store$'
 exec go tool adder list
 stdout '^  driver  Add an implementation \(pack store for drivers\)$'
 stdout '^  cache   Add an implementation \(pack store for caches\)$'
+exec go tool adder describe driver
+stdout ' from impl\.go\.tmpl in pack store$'
+exec go tool adder describe driver --json
+stdout '"pack": "store"'
 exec go tool adder new driver name=gcs
 stdout '^created    drivers/gcs/gcs.go$'
 stdout '^updated    drivers/registry.gen.go$'

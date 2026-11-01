@@ -504,7 +504,7 @@ Outputs in languages other than Go get adder's header in their own comment synta
 | `/* ... */` | CSS, Sass |
 | `<!-- ... -->` | HTML, Markdown, SVG, Vue, XML |
 
-- The header goes on the first line, or after a leading `#!` line, an XML declaration, or Markdown front matter, which must stay first.
+- The header goes on the first line, or after a leading `#!` line, an XML declaration, or Markdown front matter, which must stay first. A UTF-8 byte order mark stays first too, before all of them.
 - A file that already has adder's header where adder writes it is left alone. Another tool's generated-code comment gets adder's header above it ([decision 8](#8-the-generated-code-header-is-frozen)).
 - File types without comments, such as JSON, and extensions not in the table get no header. They cannot use `each`, and `adder explain` cannot identify them.
 - The table is frozen within v1: a file type without a header never gains one ([compatibility](compatibility.md)).

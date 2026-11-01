@@ -99,8 +99,8 @@ func Ensure(name string, src []byte, source string) ([]byte, error) {
 	start := preambleEnd(name, src)
 	out := make([]byte, 0, len(src)+len(prefix)+len(source)+len(suffix)+16)
 	out = append(out, src[:start]...)
-	if start > 0 && src[start-1] != '\n' {
-		out = append(out, '\n')
+	if pre := bytes.TrimPrefix(src[:start], utf8BOM); len(pre) > 0 && pre[len(pre)-1] != '\n' {
+		out = append(out, '\n') // a file of only a shebang has no newline after it
 	}
 	out = append(out, c.line(prefix+source+suffix)+"\n"...)
 	return append(out, src[start:]...), nil
@@ -197,22 +197,30 @@ func parseGo(src []byte) (*ast.File, error) {
 	return parser.ParseFile(token.NewFileSet(), "", src, parser.PackageClauseOnly|parser.ParseComments)
 }
 
-// preambleEnd returns where a header goes in src: after a leading #! line or XML declaration, or after Markdown
-// front matter, all of which must stay first.
+// preambleEnd returns where a header goes in src: after a byte order mark, and after a leading #! line or XML
+// declaration, or Markdown front matter, all of which must stay first.
 func preambleEnd(name string, src []byte) int {
+	mark := 0
+	if bytes.HasPrefix(src, utf8BOM) {
+		mark = len(utf8BOM)
+	}
+	rest := src[mark:]
 	firstLine := func() int {
-		if i := bytes.IndexByte(src, '\n'); i >= 0 {
-			return i + 1
+		if i := bytes.IndexByte(rest, '\n'); i >= 0 {
+			return mark + i + 1
 		}
 		return len(src)
 	}
 	switch ext := strings.ToLower(path.Ext(name)); {
-	case bytes.HasPrefix(src, []byte("#!")), bytes.HasPrefix(src, []byte("<?xml")):
+	case bytes.HasPrefix(rest, []byte("#!")), bytes.HasPrefix(rest, []byte("<?xml")):
 		return firstLine()
-	case (ext == ".md" || ext == ".markdown") && bytes.HasPrefix(src, []byte("---\n")):
-		if i := bytes.Index(src[4:], []byte("\n---\n")); i >= 0 {
-			return 4 + i + len("\n---\n")
+	case (ext == ".md" || ext == ".markdown") && bytes.HasPrefix(rest, []byte("---\n")):
+		if i := bytes.Index(rest[4:], []byte("\n---\n")); i >= 0 {
+			return mark + 4 + i + len("\n---\n")
 		}
 	}
-	return 0
+	return mark
 }
+
+// utf8BOM is the byte order mark some editors start a file with. It stays first, before adder's header.
+var utf8BOM = []byte("\xef\xbb\xbf")

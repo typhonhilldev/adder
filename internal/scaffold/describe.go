@@ -1,6 +1,7 @@
 package scaffold
 
 import (
+	"cmp"
 	"context"
 	"maps"
 	"slices"
@@ -46,6 +47,8 @@ type DescribedInput struct {
 // DescribedFile is one file a generator creates.
 type DescribedFile struct {
 	Template string `json:"template"`
+	// Pack names the pack holding the template, if any.
+	Pack     string `json:"pack,omitempty"`
 	Path     string `json:"path"`
 	When     string `json:"when,omitempty"`
 	Unless   string `json:"unless,omitempty"`
@@ -117,7 +120,7 @@ func Describe(ctx context.Context, cfg *config.Config, src derive.Sources, name 
 		}
 	}
 	for _, f := range gen.Files {
-		d.Files = append(d.Files, DescribedFile{Template: f.Template, Path: f.Path, When: f.When, Unless: f.Unless, IfExists: f.IfExists})
+		d.Files = append(d.Files, DescribedFile{Template: f.Template, Pack: cmp.Or(f.Pack, gen.Pack), Path: f.Path, When: f.When, Unless: f.Unless, IfExists: f.IfExists})
 	}
 	return d, nil
 }

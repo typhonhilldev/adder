@@ -4,6 +4,14 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+### Added
+
+- `adder describe` names the pack that holds each file's template, as `pack` in its JSON.
+
+### Fixed
+
+- In a file that starts with a UTF-8 byte order mark, adder wrote its header before the mark, which then sat inside the file, and did not see another tool's generated-code comment after it. The header now goes after the mark, and after a `#!` line that follows it. `adder check` reports such outputs as out of date until `adder derive` rewrites them.
+
 ## [1.0.0] - 2026-11-01
 
 The first stable release. From here, the configuration, template data and functions, the generated-code header, commands, diagnostic codes, exit codes, JSON output, and the Go API follow semantic versioning, as [docs/compatibility.md](docs/compatibility.md) describes.
@@ -25,7 +33,6 @@ The first stable release. From here, the configuration, template data and functi
 - When `file-exists` blocks a file that another tool generated, its hint says so, and that deleting the file once lets adder generate it.
 - The `adder.yaml` that `adder init` writes links to `docs/configuration.md`.
 - Every JSON report has a `warnings` list beside `problems`, empty when there are none.
-
 - Two new diagnostic codes: `duplicate-name`, for a repeated generator test name, a generator name a pack use takes, and two partials defining one template, which were `invalid-name` or `template-syntax`; and `interrupted`, which was `error`.
 - `adder explain --json` always has `source`, `scans`, and `status`, empty or null when they do not apply.
 - `.Vars` and `.Options` are present in every template, empty where they do not apply.
