@@ -86,6 +86,19 @@ adder:
     - go tool adder check --diff
 ```
 
+A repository that does not declare adder as a tool can use the release's image, which has Go too, for scans with `typeCheck`. Pin the version, as `go.mod` would, and clear the entrypoint, which runs `adder`:
+
+```yaml
+adder:
+  image:
+    name: ghcr.io/typhonhilldev/adder:1.1.0
+    entrypoint: [""]
+  script:
+    - adder check --diff
+```
+
+The image runs anywhere else the same way, such as `docker run --rm -v "$PWD:/src" ghcr.io/typhonhilldev/adder:1.1.0 check`. A repository whose scans set `typeCheck` needs its modules downloaded first, with `go mod download`, since adder never downloads them.
+
 To show problems and out-of-date files in the merge request's [Code Quality](https://docs.gitlab.com/ci/testing/code_quality/) widget, convert `--json` into a Code Quality report:
 
 ```yaml

@@ -105,6 +105,8 @@ go get -tool typhonhill.dev/adder/cmd/adder
 go tool adder init
 ```
 
+Releases also come as binaries for Linux, macOS, and Windows, through Homebrew with `brew install typhonhilldev/tap/adder`, and as the image `ghcr.io/typhonhilldev/adder`, which includes Go. [Verifying a release](SECURITY.md#verifying-a-release) explains how to check one.
+
 ## Documentation
 
 - [Getting started](docs/getting-started.md): a first registry, a first generator, and `adder check` in CI.

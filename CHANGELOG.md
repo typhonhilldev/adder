@@ -6,6 +6,9 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ### Added
 
+- Releases with binaries for Linux, macOS, and Windows on amd64 and arm64, built reproducibly by GoReleaser from the tag, with a signed `checksums.txt`, an SBOM and a build attestation for each archive. `SECURITY.md` shows how to verify them.
+- A Homebrew cask: `brew install typhonhilldev/tap/adder`.
+- An image, `ghcr.io/typhonhilldev/adder`, with Go included, so scans with `typeCheck` work in CI systems without Go.
 - `adder describe` names the pack that holds each file's template, as `pack` in its JSON.
 
 ### Fixed

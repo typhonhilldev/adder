@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# Releases, as docs/design.md decision 33 describes. The release workflow runs this for each v* tag.
+version: 2
+
+# Releases are on GitHub, whatever other tokens the environment has.
+force_token: github
+
+builds:
+  - main: ./cmd/adder
+    binary: adder
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath]
+    # The version comes from the build information Go records from the tag; no -X flags.
+    ldflags: [-s -w]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - src: LICENSE
+        info: {mtime: "{{ .CommitDate }}"}
+      - src: README.md
+        info: {mtime: "{{ .CommitDate }}"}
+      - src: CHANGELOG.md
+        info: {mtime: "{{ .CommitDate }}"}
+    builds_info:
+      mtime: "{{ .CommitDate }}"
+
+checksum:
+  name_template: checksums.txt
+
+sboms:
+  - artifacts: archive
+
+signs:
+  - cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sigstore.json"
+    args: [sign-blob, "--bundle=${signature}", "${artifact}", --yes]
+
+dockers_v2:
+  - images: [ghcr.io/typhonhilldev/adder]
+    tags: ["{{ .Version }}", "{{ .Major }}.{{ .Minor }}", "{{ .Major }}", latest]
+    platforms: [linux/amd64, linux/arm64]
+    labels:
+      org.opencontainers.image.title: adder
+      org.opencontainers.image.description: Go boilerplate that maintains itself.
+      org.opencontainers.image.source: https://github.com/typhonhilldev/adder
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.created: "{{ .CommitDate }}"
+      org.opencontainers.image.licenses: Apache-2.0
+
+docker_signs:
+  - artifacts: manifests
+    args: [sign, "${artifact}@${digest}", --yes]
+
+homebrew_casks:
+  - name: adder
+    description: Go boilerplate that maintains itself.
+    homepage: https://github.com/typhonhilldev/adder
+    license: Apache-2.0
+    repository:
+      owner: typhonhilldev
+      name: homebrew-tap
+      token: "{{ envOrDefault \"HOMEBREW_TAP_TOKEN\" \"\" }}"
+    commit_author:
+      name: TyphonHill
+      email: 145068975+TyphonHill@users.noreply.github.com
+    hooks:
+      post:
+        # The binaries are not notarized by Apple, so macOS would refuse to run one downloaded by Homebrew.
+        install_steps: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/adder"]
+          end
+
+release:
+  github:
+    owner: typhonhilldev
+    name: adder
+  # Notes come from the changelog, through --release-notes.
+  mode: replace
+
+changelog:
+  disable: true
