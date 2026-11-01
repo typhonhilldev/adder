@@ -4,6 +4,11 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+### Fixed
+
+- v1.1.0's release job stopped before publishing the Homebrew cask and the build attestations, on a template function GoReleaser does not have. The release job now checks that it can publish before it starts, and attests the archives even when a later step fails.
+- Release archives recorded the owner of the machine that built them, so rebuilding a tag elsewhere gave the same binaries in different archives. They now record `root`, with fixed modes, so the archives are identical wherever they are built.
+
 ## [1.1.0] - 2026-11-01
 
 ### Added
