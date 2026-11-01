@@ -99,4 +99,6 @@ Releases are tagged by hand from `main`. A Go module version can never change on
    - Move the `[Unreleased]` entries in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, leave an empty `[Unreleased]` above it, and update the compare links at the bottom.
    - Remove `(planned, vX.Y)` from the headings of the decisions in `docs/design.md` that shipped, and update the links to them in the roadmap, the design document, and the README.
    - Mark the shipped roadmap rows ✅.
-3. Merge it once every check passes, then tag the merge commit `vX.Y.Z` and publish a GitHub release whose notes are the changelog section, with a link to the full changelog.
+3. Merge it once every check passes, then tag the merge commit `vX.Y.Z`. The release workflow publishes the release, with the changelog section as its notes, the signed binaries, the image, and the Homebrew cask. It fails when the changelog has no section for the tag.
+
+A pull request that changes `.goreleaser.yaml`, the `Dockerfile`, or the release workflow builds a snapshot of every artifact, which publishes nothing, and checks that building the archives twice gives identical files. To build one locally, run `goreleaser release --snapshot --clean --skip=sign,sbom` with GoReleaser installed.

@@ -632,7 +632,9 @@ Pushing a `v*` tag runs GoReleaser in GitHub Actions:
 
 - **Binaries:** builds for Linux, macOS, and Windows on amd64 and arm64, with `-trimpath`, `CGO_ENABLED=0`, and file times taken from the commit, so rebuilding a tag produces identical archives. The version comes from the build information Go embeds from the tag, as `adder --version` already reads it, so no linker flags are needed.
 - **Integrity:** `checksums.txt` is signed with keyless cosign, as a Sigstore bundle. Each archive has an SPDX SBOM and a GitHub artifact attestation with SLSA build provenance, which `gh attestation verify` checks.
-- **Homebrew:** a cask in `typhonhilldev/homebrew-tap`, pushed with a fine-grained token that can write only to that repository.
+- **Homebrew:** a cask in `typhonhilldev/homebrew-tap`, pushed with a fine-grained token that can write only to that repository. The binaries are not notarized by Apple, so the cask clears macOS's quarantine flag on install.
+- **Image:** `ghcr.io/typhonhilldev/adder`, for linux/amd64 and linux/arm64, tagged with the version, its minor and major versions, and `latest`, and signed with cosign. It is the official `golang` Alpine image, pinned by digest and updated by Dependabot, with adder added, so scans with `typeCheck` work in it too. Its caches are in `/tmp`, so it runs as any user, and it starts in `/src`, where a repository is mounted.
+- **Checking the build:** a pull request that changes how releases are built runs the whole build as a snapshot, which publishes nothing, and builds the archives twice to check that they are identical. `SECURITY.md` shows users how to verify a release.
 - **Release notes:** the changelog's section for the tag. The release fails when that section is missing, so no release ships without its changelog.
 - **Permissions:** the release job alone gets `contents: write`, `id-token: write`, and `attestations: write`.
 
@@ -643,6 +645,8 @@ Pushing a `v*` tag runs GoReleaser in GitHub Actions:
 | The SLSA GitHub generator | GitHub's artifact attestations give the same provenance natively, with less workflow. |
 | A Homebrew formula | GoReleaser now publishes prebuilt binaries to Homebrew as casks and has deprecated formulas for them. |
 | Version set with `-ldflags -X` | Duplicates what Go's build information already records. |
+| A minimal image, such as distroless | Smaller, but without Go, so scans with `typeCheck` fail in it. CI systems without Go are the reason for an image at all. |
+| Two images, minimal and with Go | Twice the images to build, sign, and document, for a size that matters little next to a CI job's other images. |
 
 ### 34. Integrations and coding agents (planned, launch)
 

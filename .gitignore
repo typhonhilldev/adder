@@ -35,3 +35,6 @@ go.work.sum
 
 # Binary built by go build in the repository root
 /adder
+
+# GoReleaser output
+/dist/
