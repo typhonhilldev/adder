@@ -4,10 +4,16 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-11-01
+
 ### Fixed
 
 - Releases were published without their notes, since disabling GoReleaser's changelog also dropped the notes taken from this file. The release job now checks that the notes are there; v1.1.0's and v1.1.1's were added by hand.
 - The Homebrew cask could not be read by Homebrew 7, since its install step used Ruby where Homebrew now takes its own install steps. The 1.1.1 cask in the tap was corrected by hand.
+
+## [1.1.2] - 2026-11-01
+
+v1.1.2 was tagged before its changelog section existed, so its release job stopped before publishing anything. It is a Go module version with the same code as v1.1.3; use v1.1.3, which has binaries, the image, and the cask.
 
 ## [1.1.1] - 2026-11-01
 
@@ -185,7 +191,9 @@ These changes settle names before v1.0 freezes them. Configurations that use an 
 - Diagnostics with stable codes, file positions, and hints; every problem is reported at once.
 - Exit codes: 0 for success, 1 for problems, 2 for usage mistakes, and 3 for stale outputs.
 
-[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/typhonhilldev/adder/compare/v1.1.1...v1.1.3
+[1.1.2]: https://github.com/typhonhilldev/adder/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/typhonhilldev/adder/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/typhonhilldev/adder/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/typhonhilldev/adder/compare/v0.6.0...v1.0.0
