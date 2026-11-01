@@ -79,17 +79,16 @@ homebrew_casks:
     hooks:
       post:
         # The binaries are not notarized by Apple, so macOS would refuse to run one downloaded by Homebrew.
+        # Homebrew's install steps, not Ruby: {{ .StagedPath }} becomes Homebrew's {{staged_path}}.
         install_steps: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/adder"]
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/adder"]
           end
 
 release:
   github:
     owner: typhonhilldev
     name: adder
-  # Notes come from the changelog, through --release-notes.
+  # Notes come from the changelog, through --release-notes. Disabling GoReleaser's own changelog would drop them
+  # too, since the same step reads that file.
   mode: replace
-
-changelog:
-  disable: true

@@ -4,6 +4,11 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+### Fixed
+
+- Releases were published without their notes, since disabling GoReleaser's changelog also dropped the notes taken from this file. The release job now checks that the notes are there; v1.1.0's and v1.1.1's were added by hand.
+- The Homebrew cask could not be read by Homebrew 7, since its install step used Ruby where Homebrew now takes its own install steps. The 1.1.1 cask in the tap was corrected by hand.
+
 ## [1.1.1] - 2026-11-01
 
 ### Fixed
