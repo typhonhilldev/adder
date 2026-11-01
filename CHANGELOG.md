@@ -4,6 +4,8 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-01
+
 ### Added
 
 - `--format` chooses how every command reports: `text`, `json`, `github` for GitHub Actions annotations on the pull request, or `gitlab` for a GitLab Code Quality report. Both CI formats show problems, warnings, and the outputs `adder check` finds out of date at their files, and replace the `jq` the integration guide used. `--json` is short for `--format json`, which the documentation now uses.
@@ -11,6 +13,7 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 - A GitLab CI job, `ci/gitlab/adder.yml`, to include from a release with its integrity hash. It runs `adder check` in the release's image and reports in the merge request's Code Quality report.
 
 - Each release carries its build attestation as `adder_<version>.intoto.jsonl`, for checking offline.
+- For contributors: a code of conduct, with reports to conduct@typhonhill.dev, forms for bug reports and feature requests, questions in GitHub Discussions, and an OpenSSF Scorecard badge.
 
 ### Changed
 
@@ -203,7 +206,8 @@ These changes settle names before v1.0 freezes them. Configurations that use an 
 - Diagnostics with stable codes, file positions, and hints; every problem is reported at once.
 - Exit codes: 0 for success, 1 for problems, 2 for usage mistakes, and 3 for stale outputs.
 
-[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.1.3...HEAD
+[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/typhonhilldev/adder/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/typhonhilldev/adder/compare/v1.1.1...v1.1.3
 [1.1.2]: https://github.com/typhonhilldev/adder/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/typhonhilldev/adder/compare/v1.1.0...v1.1.1
