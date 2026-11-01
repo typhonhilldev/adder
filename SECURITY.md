@@ -39,6 +39,8 @@ cosign verify-blob checksums.txt --bundle checksums.txt.sigstore.json \
 sha256sum --ignore-missing -c checksums.txt
 ```
 
+From v1.2.0, each release also carries its attestation as `adder_<version>.intoto.jsonl`, so `gh attestation verify --bundle adder_<version>.intoto.jsonl` works offline.
+
 The container image is signed the same way:
 
 ```sh

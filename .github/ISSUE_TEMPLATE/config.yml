@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question
+    url: https://github.com/typhonhilldev/adder/discussions/categories/q-a
+    about: Ask how to do something with adder.
+  - name: Security vulnerability
+    url: https://github.com/typhonhilldev/adder/security/advisories/new
+    about: Report a vulnerability privately, as SECURITY.md describes.
+  - name: Documentation
+    url: https://github.com/typhonhilldev/adder/tree/main/docs
+    about: Guides and reference for configuration, templates, and commands.

@@ -18,7 +18,7 @@ require (
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 )
 
 // Tagged before the move: use github.com/TyphonHill/adder at these versions, or v0.6.0 or later here.
