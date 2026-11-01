@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"slices"
 	"testing"
+	"testing/fstest"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 
@@ -195,6 +196,39 @@ func TestDescribeErrors(t *testing.T) {
 			_, err = Describe(t.Context(), cfg, src, tt.generator)
 			if list := diag.From(err); len(list) == 0 || list[0].Code != tt.wantCode {
 				t.Errorf("Describe() error = %v, want %s", err, tt.wantCode)
+			}
+		})
+	}
+}
+
+func TestDescribeFilePack(t *testing.T) {
+	store := fstest.MapFS{
+		"pack.yaml": {Data: []byte("version: 1\ngenerators:\n  impl: {files: [{template: impl.tmpl, path: impl.go}]}\n")},
+		"impl.tmpl": {Data: []byte("package impl\n")},
+		"doc.tmpl":  {Data: []byte("package doc\n")},
+	}
+	tests := []struct {
+		name      string
+		config    string
+		generator string
+		want      string // the pack of the generator's one file
+	}{
+		{name: "the configuration's own template", config: "version: 1\ngenerators:\n  own: {files: [{template: own.tmpl, path: own.go}]}\n", generator: "own"},
+		{name: "a file naming a pack", config: "version: 1\ngenerators:\n  doc: {files: [{template: doc.tmpl, pack: store, path: doc.go}]}\n", generator: "doc", want: "store"},
+		{name: "a generator a pack declares", config: "version: 1\npacks:\n  impls: {pack: store}\n", generator: "impl", want: "store"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg, err := config.Parse("adder.yaml", []byte(tt.config), storePacks(t, store))
+			if err != nil {
+				t.Fatal(err)
+			}
+			d, err := Describe(t.Context(), cfg, derive.Sources{Repo: fstest.MapFS{}, Templates: fstest.MapFS{}}, tt.generator)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(d.Files) != 1 || d.Files[0].Pack != tt.want {
+				t.Errorf("files = %+v, want one with pack %q", d.Files, tt.want)
 			}
 		})
 	}
