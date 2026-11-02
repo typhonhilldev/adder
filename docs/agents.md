@@ -1,6 +1,6 @@
 # Coding agents
 
-Coding agents use adder the way scripts do: every command that runs prints one JSON object with `--format json`, problems have stable codes, and each generator describes its inputs with a JSON Schema. An agent that follows the steps below adds code the way the repository's people do, and never edits a generated file by hand.
+Coding agents use adder through its [MCP server](#mcp), which offers adder's commands as tools, or the way scripts do: every command that runs prints one JSON object with `--format json`, problems have stable codes, and each generator describes its inputs with a JSON Schema. An agent that follows the steps below adds code the way the repository's people do, and never edits a generated file by hand.
 
 ## The loop
 
@@ -35,4 +35,35 @@ This repository generates code with adder (`go tool adder`). Its generators and 
 
 ## MCP
 
-An MCP server exposing generators as tools is planned for the launch ([roadmap](../ROADMAP.md)). Until then, the commands above give an agent everything the server would.
+`adder mcp` serves adder's commands as tools over the [Model Context Protocol](https://modelcontextprotocol.io), so an agent calls them directly rather than in a shell, and the client asks before each call as it does for any tool. Start it as `go tool adder mcp`, which runs the adder `go.mod` pins, with the repository's own packs. With Claude Code:
+
+```sh
+claude mcp add adder -- go tool adder mcp
+```
+
+Other clients take the same command in their configuration, such as `.mcp.json` at the repository root:
+
+```json
+{
+  "mcpServers": {
+    "adder": {"command": "go", "args": ["tool", "adder", "mcp"]}
+  }
+}
+```
+
+| Tool | Arguments | Does |
+| --- | --- | --- |
+| `list` | | List the generators and derived outputs. |
+| `describe` | `generator` | Describe a generator, with a JSON Schema for its inputs. |
+| `explain` | `path`, from the repository root | Name the output and template that produce a file. |
+| `check` | `diff` | Report derived outputs that are out of date. |
+| `test` | `generators` | Run generators' tests against their golden files. |
+| `preview` | `generator`, `inputs`, `diff` | Show what a generator would create and change, writing nothing. |
+| `derive` | | Update every derived output. Only with `--write`. |
+| `new-<generator>` | the generator's inputs | Create a generator's files. One tool per generator, only with `--write`. |
+
+- Without `--write`, the server only reads. Add it, as `go tool adder mcp --write`, to let the agent create files and update derived outputs.
+- Each tool returns what its command prints with `--format json`, and is an error when that has problems.
+- `adder.yaml` is read for every call, so changes apply without restarting the server, and the generator tools follow it.
+- The server gives the client the guidance above, so an agent knows not to edit generated files without being told.
+- It serves one configuration: the one found from where it starts, or `--root`. In a monorepo, add one server per configuration, each with `--root`.
