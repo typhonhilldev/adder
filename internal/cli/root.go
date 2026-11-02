@@ -59,6 +59,10 @@ type globalOptions struct {
 	quiet   bool
 	verbose bool
 
+	// version and packList are what Main was given, for adder mcp to run commands as this adder.
+	version  string
+	packList []pack.Pack
+
 	// loadedRoot and loadedConfig are the root and configuration file last loaded, for the CI formats' paths.
 	loadedRoot, loadedConfig string
 
@@ -109,6 +113,7 @@ func (o *globalOptions) loadFrom(dir string) (*config.Config, string, error) {
 // process exit code.
 func Main(ctx context.Context, version string, packs []pack.Pack, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	cmd, opts := newRoot(version)
+	opts.version, opts.packList = version, packs
 	opts.format = formatArg(args)
 	opts.json = opts.format == formatJSON
 	opts.warnings = &diag.Warnings{}
@@ -203,7 +208,7 @@ Generators and derived files are declared in adder.yaml at the repository root.`
 	}
 	addGlobalFlags(cmd, opts)
 	cmd.AddCommand(newInitCommand(opts), newDeriveCommand(opts), newCheckCommand(opts), newNewCommand(opts),
-		newListCommand(opts), newDescribeCommand(opts), newExplainCommand(opts), newTestCommand(opts))
+		newListCommand(opts), newDescribeCommand(opts), newExplainCommand(opts), newTestCommand(opts), newMCPCommand(opts))
 	markDeprecated(cmd)
 	return cmd, opts
 }
