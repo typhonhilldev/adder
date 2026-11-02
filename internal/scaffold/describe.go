@@ -100,12 +100,7 @@ func Describe(ctx context.Context, cfg *config.Config, src derive.Sources, name 
 		Deprecated:  gen.Deprecated,
 		gen:         gen,
 		data:        data,
-		InputSchema: InputSchema{
-			Schema:     "https://json-schema.org/draft/2020-12/schema",
-			Type:       "object",
-			Properties: make(map[string]Property, len(gen.Inputs)),
-			Required:   []string{},
-		},
+		InputSchema: newInputSchema(len(gen.Inputs)),
 	}
 	for _, input := range slices.Sorted(maps.Keys(gen.Inputs)) {
 		in := gen.Inputs[input]
@@ -123,6 +118,30 @@ func Describe(ctx context.Context, cfg *config.Config, src derive.Sources, name 
 		d.Files = append(d.Files, DescribedFile{Template: f.Template, Pack: cmp.Or(f.Pack, gen.Pack), Path: f.Path, When: f.When, Unless: f.Unless, IfExists: f.IfExists})
 	}
 	return d, nil
+}
+
+// StaticInputSchema returns the JSON Schema for a generator's inputs as written, without the values its scans
+// allow or rule out, which adder new checks when it runs.
+func StaticInputSchema(gen config.Generator) InputSchema {
+	schema := newInputSchema(len(gen.Inputs))
+	for _, name := range slices.Sorted(maps.Keys(gen.Inputs)) {
+		in := gen.Inputs[name]
+		described := DescribeInput(name, in)
+		schema.Properties[name] = property(described, in)
+		if described.Required {
+			schema.Required = append(schema.Required, name)
+		}
+	}
+	return schema
+}
+
+func newInputSchema(inputs int) InputSchema {
+	return InputSchema{
+		Schema:     "https://json-schema.org/draft/2020-12/schema",
+		Type:       "object",
+		Properties: make(map[string]Property, inputs),
+		Required:   []string{},
+	}
 }
 
 // Check reports whether value is valid for the string input called input, as adder new checks it.

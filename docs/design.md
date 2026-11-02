@@ -155,7 +155,7 @@ adder supports the two most recent Go releases. `go.mod` declares the older one 
 
 Dependencies are kept to a minimum: cobra for the command line, `go.yaml.in/yaml/v3` for configuration, `golang.org/x/mod` for reading `go.mod`, and `github.com/rogpeppe/go-internal/diff` for `--diff` previews. Anything that shapes generated output, such as template functions and case conversion, is implemented in adder itself, because a dependency upgrade must never change what people's templates produce.
 
-`golang.org/x/sys` is used only to turn on color in Windows consoles ([decision 32](#32-terminal-output)), and `golang.org/x/tools/go/packages` only to load types for scans that ask for them ([decision 37](#37-loading-types)). Tests also use `github.com/rogpeppe/go-internal/testscript`, from the same module as the diff code, and `github.com/santhosh-tekuri/jsonschema/v6` to check the schemas adder writes and ships. Neither is built into the binary.
+`golang.org/x/sys` is used only to turn on color in Windows consoles ([decision 32](#32-terminal-output)), `golang.org/x/tools/go/packages` only to load types for scans that ask for them ([decision 37](#37-loading-types)), and `github.com/modelcontextprotocol/go-sdk` only for `adder mcp` ([decision 47](#47-an-mcp-server-planned-launch)). Tests also use `github.com/rogpeppe/go-internal/testscript`, from the same module as the diff code, and `github.com/santhosh-tekuri/jsonschema/v6` to check the schemas adder writes and ships. Neither is built into the binary.
 
 ### 12. One configuration file at the root
 
@@ -1062,6 +1062,46 @@ adder only writes these formats when asked. The [GitHub Action](#34-integrations
 | Only annotations with `--format github`, without the text output | The log is where people read a failure first, and GitHub shows only so many annotations per step. |
 | `out-of-date` as a diagnostic code | Out-of-date outputs are changes in every other format, with exit code 3 rather than 1, and a code would report them as problems in some places and changes in others. |
 | A SARIF format | Code scanning is for security findings that persist; adder's problems are fixed in the same pull request. |
+
+### 47. An MCP server (planned, launch)
+
+`adder mcp` serves the [Model Context Protocol](https://modelcontextprotocol.io) over standard input and output, so a coding agent calls adder's commands as tools instead of running them in a shell. An agent's configuration starts it as `go tool adder mcp` in the repository, which runs the adder `go.mod` pins, with a repository's own packs. `--root` and `--config` work as for every command.
+
+**Tools.** Every tool returns the same object that the command prints with `--format json` ([decision 22](#22-json-output)), as the result's structured content and as text, and is an error result when that object has problems. Out-of-date outputs and warnings are not errors.
+
+| Tool | Arguments | Does |
+| --- | --- | --- |
+| `list` | | `adder list` |
+| `describe` | `generator` | `adder describe`, with the generator's `inputSchema` |
+| `explain` | `path` | `adder explain` |
+| `check` | `diff` | `adder check`, with each out-of-date output's diff when `diff` is true |
+| `test` | `generators` | `adder test`: the generators' tests against their golden files, every generator's without `generators` |
+| `preview` | `generator`, `inputs`, `diff` | `adder new --dry-run`: the files a generator would create and the derived outputs it would change, with their content as diffs when `diff` is true |
+| `derive` | | `adder derive`, with `--write` |
+| `new-<generator>` | the generator's inputs | `adder new <generator>`, one tool per generator, with `--write` |
+
+- **Read-only unless asked to write.** Without `--write`, the server only reads: agents see the generators, preview them, test them, and check outputs. With `adder mcp --write`, it adds `derive` and a tool for each generator, which write files. Writing tools are marked as not read-only in their annotations, so a client can ask before calling them, and `derive` as destructive, since it removes outputs that are no longer produced. adder never overwrites a file it did not generate, as always. Writing calls run one at a time.
+- **A tool per generator** gives the agent each generator's inputs as the tool's JSON Schema, the same `inputSchema` `adder describe` returns, so it fills them in like any other tool. The `new-` prefix keeps them apart from the fixed tools, whatever a generator is called.
+- **Current on every call.** `adder.yaml` is loaded for each call, so edits apply without restarting the server, and the tool list follows the generators, with the change notification that the client's protocol version uses. Without an `adder.yaml`, the server still starts, and its tools report the problem, with a hint to run `adder init`.
+- **Instructions.** The server gives the client the guidance of [the agents guide](agents.md): use generators rather than writing their files by hand, never edit a file marked `DO NOT EDIT` but find its template with `explain`, and run `check` after changing code that a scan reads.
+- **One configuration.** The server serves the configuration found from where it starts, or `--root` and `--config`. In a monorepo, each configuration gets its own server, started with `--root`; serving several from one would need tool names that say which configuration a generator belongs to, which can be added later without changing these.
+- **Nothing else.** No resources, prompts, or HTTP transport: an agent starts the server as a subprocess, and the tools cover what agents do. The server makes no network requests, as adder never does.
+
+**The SDK.** The protocol is implemented by the official Go SDK, which speaks every revision from 2024-11-05 to 2026-07-28. The 2026-07-28 revision removed the `initialize` handshake and added `server/discover`, while clients still use earlier revisions, so following the protocol is ongoing work that the SDK does for every Go server. It adds seven modules, the SDK and six it needs, and its HTTP and OAuth support, which adder never calls, grows the binary from 8.5 MB to 13.8 MB.
+
+**Why:** agents already drive adder through `--format json` ([decision 22](#22-json-output)), but each one has to learn the commands from the documentation first. As tools, generators are discovered with their inputs' schemas, previewed, and run with structured results, and a client's permission prompts apply to each call.
+
+| Considered | Why not |
+| --- | --- |
+| Implementing the protocol in adder | No new dependencies and no growth, but two generations of the protocol to serve now, and every later revision to follow. |
+| `adder-mcp`, a separate command with the SDK | Keeps `adder` small, but a repository's own build with packs would need its own `adder-mcp` too. |
+| One `new` tool taking a generator's name and inputs | The agent would not see each generator's inputs as a schema until it called `describe`. |
+| A `dryRun` argument on each generator's tool | A generator may have an input called `dryRun`; `preview` and `--write` keep adder's arguments apart from inputs. |
+| Writing tools by default | An agent should not change a repository until someone has asked it to, and starting the server with `--write` is that request. |
+| Resources with the schema, the template functions, and the documentation | Useful to an agent writing a generator, but they would grow the binary; the schema at its URL is the first step ([roadmap](../ROADMAP.md)). |
+| Prompts, which clients show as commands | A guided way for people to add a component, but agents do not need one ([roadmap](../ROADMAP.md)). |
+| Asking the user for missing inputs, as `adder new` does in a terminal | The protocol's way to ask changed in 2026-07-28, and an agent can fill the inputs from the schema ([roadmap](../ROADMAP.md)). |
+| An `init` tool | Setting adder up is rare, and `adder init` works from any shell. |
 
 ## Compatibility
 

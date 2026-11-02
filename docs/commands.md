@@ -10,6 +10,7 @@
 | `adder list` | List the generators and derived outputs. |
 | `adder describe <generator>` | Show a generator's inputs, with the values its scans allow now, and the files it creates. |
 | `adder explain <file>` | Show which output and template produced a file, and whether it is up to date. |
+| `adder mcp` | Serve these commands to coding agents as MCP tools. `--write` adds the ones that write. See [coding agents](agents.md#mcp). |
 | `adder completion <shell>` | Print a completion script for bash, zsh, fish, or powershell. |
 
 adder finds `adder.yaml` in the current directory or the nearest parent with one, the way `go` finds `go.mod`, so commands work from anywhere in the repository.

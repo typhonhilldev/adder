@@ -4,6 +4,10 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+### Added
+
+- `adder mcp`, an MCP server that offers adder's commands to coding agents as tools: `list`, `describe`, `explain`, `check`, `test`, and `preview`, and with `--write`, `derive` and a tool for each generator. Each returns what its command prints with `--format json`, and the server follows `adder.yaml` as it changes.
+
 ## [1.2.0] - 2026-11-01
 
 ### Added

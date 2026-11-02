@@ -114,7 +114,12 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | JSON output for every command ([design 22](docs/design.md#22-json-output)) | ✅ |
 | `adder explain <file>`: which configuration and template produced a generated file ([design 23](docs/design.md#23-discovering-generators-and-outputs)) | ✅ |
 | A guide and a ready-made `AGENTS.md` section for repositories that use coding agents ([design 34](docs/design.md#34-integrations-and-coding-agents)) | ✅ |
-| `adder mcp`: an MCP server exposing generators as tools, read-only unless asked to write | 🔜 launch |
+| `adder mcp`: an MCP server exposing generators as tools, read-only unless asked to write ([design 47](docs/design.md#47-an-mcp-server-planned-launch)) | 🔜 launch |
+| MCP resources: the `adder.yaml` schema, the template functions, and the documentation, for agents writing generators | 💡 |
+| MCP prompts, which clients show as commands, such as adding a component | 💡 |
+| `adder mcp` asking the user for missing inputs, as `adder new` does in a terminal | 💡 |
+| `adder mcp` serving every configuration of a monorepo at once | 💡 |
+| `adder mcp` listed in the MCP Registry | 💡 |
 
 ### Command line
 
