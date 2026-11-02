@@ -123,8 +123,16 @@ func newMCPServer(opts *globalOptions, write bool) *mcpServer {
 // tool registers a fixed tool. properties and required describe its arguments, which args decodes and turns into
 // the adder command line to run, and the standard input to give it.
 func tool[A any](m *mcpServer, name, description, properties string, required []string, annotations *mcp.ToolAnnotations, args func(A) ([]string, []byte, error)) {
-	schema := fmt.Sprintf(`{"type": "object", "properties": %s, "required": %s, "additionalProperties": false}`, properties, jsonList(required))
-	m.server.AddTool(&mcp.Tool{Name: name, Description: description, InputSchema: json.RawMessage(schema), Annotations: annotations},
+	if required == nil {
+		required = []string{}
+	}
+	schema := map[string]any{
+		"type":                 "object",
+		"properties":           json.RawMessage(properties),
+		"required":             required,
+		"additionalProperties": false,
+	}
+	m.server.AddTool(&mcp.Tool{Name: name, Description: description, InputSchema: schema, Annotations: annotations},
 		func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			var a A
 			if raw := req.Params.Arguments; len(raw) > 0 {
@@ -255,12 +263,4 @@ func strictJSON(data []byte, v any) error {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.DisallowUnknownFields()
 	return dec.Decode(v)
-}
-
-func jsonList(list []string) string {
-	if list == nil {
-		return "[]"
-	}
-	data, _ := json.Marshal(list)
-	return string(data)
 }
