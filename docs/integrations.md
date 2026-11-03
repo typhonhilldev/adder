@@ -56,7 +56,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with: {go-version-file: go.mod}
-      - uses: typhonhilldev/adder@v1.2.0
+      - uses: typhonhilldev/adder@v1.3.0
 ```
 
 It runs the adder `go.mod` declares as a tool, including a repository's [own build](extending.md#your-own-build) with its packs, which needs adder v1.2.0 or later. In a repository that does not declare it, the action downloads the release it is referenced by and checks it against `checksums.txt` and its attestation before running it; `version` picks another, from v1.2.0 on.
@@ -85,10 +85,10 @@ adder's job for GitLab runs `adder check` and shows problems, warnings, and out-
 ```yaml
 # .gitlab-ci.yml
 include:
-  - remote: https://raw.githubusercontent.com/typhonhilldev/adder/v1.2.0/ci/gitlab/adder.yml
+  - remote: https://raw.githubusercontent.com/typhonhilldev/adder/v1.3.0/ci/gitlab/adder.yml
     integrity: sha256-Eky4uwW1BeR2qmkJ0d61rnHxm4RjOHqSZ1jhwPx6DuA=
     inputs:
-      version: 1.2.0
+      version: 1.3.0
 ```
 
 The job runs in adder's image for `version`, which has Go too. It runs the adder `go.mod` declares as a tool, including a repository's [own build](extending.md#your-own-build), and otherwise the image's. Its other inputs are `command`, default `check`, `args`, such as `./... --diff`, `stage`, default `test`, and `working-directory`. The job is called `adder`, and can be extended like any other.
@@ -112,7 +112,7 @@ A repository that does not declare adder as a tool can use the release's image, 
 ```yaml
 adder:
   image:
-    name: ghcr.io/typhonhilldev/adder:1.2.0
+    name: ghcr.io/typhonhilldev/adder:1.3.0
     entrypoint: [""]
   script:
     - adder check --diff --format gitlab > gl-code-quality-report.json
@@ -122,7 +122,7 @@ adder:
       codequality: gl-code-quality-report.json
 ```
 
-The image runs anywhere else the same way, such as `docker run --rm -v "$PWD:/src" ghcr.io/typhonhilldev/adder:1.2.0 check`. A repository whose scans set `typeCheck` needs its modules downloaded first, with `go mod download`, since adder never downloads them.
+The image runs anywhere else the same way, such as `docker run --rm -v "$PWD:/src" ghcr.io/typhonhilldev/adder:1.3.0 check`. A repository whose scans set `typeCheck` needs its modules downloaded first, with `go mod download`, since adder never downloads them.
 
 ## Coding agents
 

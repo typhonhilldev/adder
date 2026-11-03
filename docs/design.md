@@ -155,7 +155,7 @@ adder supports the two most recent Go releases. `go.mod` declares the older one 
 
 Dependencies are kept to a minimum: cobra for the command line, `go.yaml.in/yaml/v3` for configuration, `golang.org/x/mod` for reading `go.mod`, and `github.com/rogpeppe/go-internal/diff` for `--diff` previews. Anything that shapes generated output, such as template functions and case conversion, is implemented in adder itself, because a dependency upgrade must never change what people's templates produce.
 
-`golang.org/x/sys` is used only to turn on color in Windows consoles ([decision 32](#32-terminal-output)), `golang.org/x/tools/go/packages` only to load types for scans that ask for them ([decision 37](#37-loading-types)), and `github.com/modelcontextprotocol/go-sdk` only for `adder mcp` ([decision 47](#47-an-mcp-server-planned-launch)). Tests also use `github.com/rogpeppe/go-internal/testscript`, from the same module as the diff code, and `github.com/santhosh-tekuri/jsonschema/v6` to check the schemas adder writes and ships. Neither is built into the binary.
+`golang.org/x/sys` is used only to turn on color in Windows consoles ([decision 32](#32-terminal-output)), `golang.org/x/tools/go/packages` only to load types for scans that ask for them ([decision 37](#37-loading-types)), and `github.com/modelcontextprotocol/go-sdk` only for `adder mcp` ([decision 47](#47-an-mcp-server)). Tests also use `github.com/rogpeppe/go-internal/testscript`, from the same module as the diff code, and `github.com/santhosh-tekuri/jsonschema/v6` to check the schemas adder writes and ships. Neither is built into the binary.
 
 ### 12. One configuration file at the root
 
@@ -237,7 +237,7 @@ Scanners also get `ScanInput` and `Problem` ([decision 42](#42-custom-template-f
 
 `cmd/adder` is `func main() { adder.Main() }`. `--version` reports the version of the adder module from build information, in a repository's own build too.
 
-Running adder from Go, such as loading a configuration and getting a plan back as Go values, waits for a consumer that needs it, such as an editor integration or an MCP server. Until then `--json` is the interface for tools. The internal packages stay internal.
+Running adder from Go, such as loading a configuration and getting a plan back as Go values, waits for a consumer that needs it, such as an editor integration. Until then `--format json` is the interface for tools, and `adder mcp` returns it too ([decision 47](#47-an-mcp-server)). The internal packages stay internal.
 
 | Considered | Why not |
 | --- | --- |
@@ -1063,7 +1063,7 @@ adder only writes these formats when asked. The [GitHub Action](#34-integrations
 | `out-of-date` as a diagnostic code | Out-of-date outputs are changes in every other format, with exit code 3 rather than 1, and a code would report them as problems in some places and changes in others. |
 | A SARIF format | Code scanning is for security findings that persist; adder's problems are fixed in the same pull request. |
 
-### 47. An MCP server (planned, launch)
+### 47. An MCP server
 
 `adder mcp` serves the [Model Context Protocol](https://modelcontextprotocol.io) over standard input and output, so a coding agent calls adder's commands as tools instead of running them in a shell. An agent's configuration starts it as `go tool adder mcp` in the repository, which runs the adder `go.mod` pins, with a repository's own packs. `--root` and `--config` work as for every command.
 
