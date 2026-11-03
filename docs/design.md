@@ -1103,7 +1103,7 @@ adder only writes these formats when asked. The [GitHub Action](#34-integrations
 | Asking the user for missing inputs, as `adder new` does in a terminal | The protocol's way to ask changed in 2026-07-28, and an agent can fill the inputs from the schema ([roadmap](../ROADMAP.md)). |
 | An `init` tool | Setting adder up is rare, and `adder init` works from any shell. |
 
-### 48. Printing one output (planned, launch)
+### 48. Printing one output
 
 `adder derive --stdout <file>` prints the content `derive` would write to one output file, header included, and writes nothing. The file is given from the current directory, as for `adder explain`, and found in the configuration nearest it. Nothing else goes to standard output, so it can be piped to `diff`, a formatter, or an editor; problems and warnings go to standard error, as always.
 
