@@ -4,6 +4,8 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-03
+
 ### Added
 
 - `adder derive --stdout <file>` prints the content `derive` would write to one output file, and writes nothing, for piping to `diff`, a formatter, or an editor. Shell completion offers the output files.
@@ -220,7 +222,8 @@ These changes settle names before v1.0 freezes them. Configurations that use an 
 - Diagnostics with stable codes, file positions, and hints; every problem is reported at once.
 - Exit codes: 0 for success, 1 for problems, 2 for usage mistakes, and 3 for stale outputs.
 
-[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/typhonhilldev/adder/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/typhonhilldev/adder/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/typhonhilldev/adder/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/typhonhilldev/adder/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/typhonhilldev/adder/compare/v1.1.1...v1.1.3
