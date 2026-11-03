@@ -7,6 +7,7 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 ### Added
 
 - `adder derive --stdout <file>` prints the content `derive` would write to one output file, and writes nothing, for piping to `diff`, a formatter, or an editor. Shell completion offers the output files.
+- For contributors: `AGENTS.md`, for coding agents working on adder, and the checks to run after a release, in `CONTRIBUTING.md`.
 
 ### Fixed
 
