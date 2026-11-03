@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -24,10 +25,11 @@ generators:
       - {template: templates/new/README.md.tmpl, path: x.md}
 `
 	tests := []struct {
-		name   string
-		config string // replaces adder.yaml when set
-		chdir  string // relative to root; "-" means a directory without adder.yaml
-		words  []string
+		name    string
+		config  string // replaces adder.yaml when set
+		removed bool   // the output is removed after deriving, so it is yet to be created
+		chdir   string // relative to root; "-" means a directory without adder.yaml
+		words   []string
 		// want is every completion, one per line, then the directive.
 		want string
 	}{
@@ -55,6 +57,8 @@ generators:
 		{name: "explain", words: []string{"explain", ""}, want: "drivers/drivers.gen.go\n:4\n"},
 		{name: "explain from a subdirectory", chdir: "drivers/s3", words: []string{"explain", "../"}, want: "../drivers.gen.go\n:4\n"},
 		{name: "explain takes one file", words: []string{"explain", "a", ""}, want: ":4\n"},
+		{name: "explain skips outputs yet to be created", removed: true, words: []string{"explain", ""}, want: ":4\n"},
+		{name: "derive --stdout", removed: true, words: []string{"derive", "--stdout", ""}, want: "drivers/drivers.gen.go\n:4\n"},
 		{name: "without a configuration", chdir: "-", words: []string{"new", ""}, want: ":4\n"},
 		{name: "explain without a configuration", chdir: "-", words: []string{"explain", ""}, want: ":0\n"},
 		{name: "describe without a configuration", chdir: "-", words: []string{"describe", ""}, want: ":4\n"},
@@ -67,6 +71,11 @@ generators:
 			}
 			if code, _, errOut := run(t.Context(), "--root", root, "derive"); code != ExitOK {
 				t.Fatal(errOut)
+			}
+			if tt.removed {
+				if err := os.Remove(filepath.Join(root, "drivers", "drivers.gen.go")); err != nil {
+					t.Fatal(err)
+				}
 			}
 			switch tt.chdir {
 			case "":

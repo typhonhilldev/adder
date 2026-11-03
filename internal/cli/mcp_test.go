@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -228,6 +229,39 @@ func TestMCPWithoutConfiguration(t *testing.T) {
 	data, _ := json.Marshal(got["problems"])
 	if !isError || !strings.Contains(string(data), `"code":"io"`) {
 		t.Errorf("list = %v, error %v, want an io problem", got, isError)
+	}
+}
+
+// TestMCPReadsWaitForWrites checks that a reading tool waits while a writing one runs, so that it never sees a
+// half-written repository. It has a single case, so it is not a table.
+func TestMCPReadsWaitForWrites(t *testing.T) {
+	m := newMCPServer(&globalOptions{root: driversRepo(t), version: "v0.0.0-test"}, false)
+	clientTransport, serverTransport := mcp.NewInMemoryTransports()
+	serverSession, err := m.server.Connect(t.Context(), serverTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer serverSession.Close()
+	session, err := mcp.NewClient(&mcp.Implementation{Name: "test"}, nil).Connect(t.Context(), clientTransport, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	m.writing.Lock() // as a writing tool does
+	done := make(chan error)
+	go func() {
+		_, err := session.CallTool(t.Context(), &mcp.CallToolParams{Name: "check"})
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		t.Fatalf("check ran during a write: error %v", err)
+	case <-time.After(100 * time.Millisecond):
+	}
+	m.writing.Unlock()
+	if err := <-done; err != nil {
+		t.Fatal(err)
 	}
 }
 

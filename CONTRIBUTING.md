@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve adder. This guide covers how to build and test it and the conventions the code follows. [docs/design.md](docs/design.md) explains how adder is built and why, and everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md).
+Thanks for helping improve adder. This guide covers how to build and test it and the conventions the code follows. [docs/design.md](docs/design.md) explains how adder is built and why, and everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md). Coding agents also read [AGENTS.md](AGENTS.md).
 
 Ask questions in [Discussions](https://github.com/typhonhilldev/adder/discussions), and report bugs and suggest features with the [issue forms](https://github.com/typhonhilldev/adder/issues/new/choose). For a change bigger than a fix, open an issue first, so the approach can be agreed before the code is written. Report vulnerabilities privately, as [SECURITY.md](SECURITY.md) describes.
 
@@ -99,8 +99,21 @@ Releases are tagged by hand from `main`. A Go module version can never change on
 1. Wait until every check on `main` has passed, Windows and macOS included. Never tag a commit whose checks are still running.
 2. In a pull request:
    - Move the `[Unreleased]` entries in `CHANGELOG.md` under `## [X.Y.Z] - YYYY-MM-DD`, leave an empty `[Unreleased]` above it, and update the compare links at the bottom.
-   - Remove `(planned, vX.Y)` from the headings of the decisions in `docs/design.md` that shipped, and update the links to them in the roadmap, the design document, and the README.
+   - Remove `(planned, ...)` from the headings of the decisions in `docs/design.md` that shipped, and update the links to them in the roadmap, the design document, and the README.
    - Mark the shipped roadmap rows ✅.
+   - Point the examples in [docs/integrations.md](docs/integrations.md) at the new version: the action, the GitLab include and its `version`, and the image. The GitLab job's integrity hash changes only when `ci/gitlab/adder.yml` does, and `TestGitLabJobIntegrity` checks it.
 3. Merge it once every check passes, then tag its merge commit, the release pull request's and no other, and push only the tag: `git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z`. Do not create the release on GitHub, which the workflow refuses: it publishes the release itself, with the changelog section as its notes, the signed binaries, the image, and the Homebrew cask. It fails when the changelog has no section for the tag.
+
+### After a release
+
+Check what the release published, using the identity and issuer in [SECURITY.md](SECURITY.md#verifying-a-release):
+
+- The release has its notes, ending in the full changelog link.
+- `checksums.txt` matches the assets, `cosign verify-blob` accepts its bundle, and `gh attestation verify` accepts the archives, also offline with `--bundle adder_<version>.intoto.jsonl`.
+- `cosign verify` accepts the image, for amd64 and arm64.
+- Homebrew reads the cask in `typhonhilldev/homebrew-tap`, with the release's checksums.
+- The archives rebuild identically: from a clean checkout of the tag, with the Go release the workflow used, `goreleaser release --clean --skip=publish,sign,sbom,docker,announce,validate` gives the same `checksums.txt` lines for the archives.
+
+A failure is fixed in a new patch release.
 
 A pull request that changes `.goreleaser.yaml`, the `Dockerfile`, or the release workflow builds a snapshot of every artifact, which publishes nothing, and checks that building the archives twice gives identical files. To build one locally, run `goreleaser release --snapshot --clean --skip=sign,sbom` with GoReleaser installed.

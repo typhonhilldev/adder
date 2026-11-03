@@ -155,9 +155,10 @@ func inputValues(cmd *cobra.Command, opts *globalOptions, cfg *config.Config, ro
 	return values
 }
 
-// completeExplain completes the files adder generates that exist, as paths from the current directory. Paths
+// completeOutputs completes the files in the derive plan, except those with the status skip, as paths from the
+// current directory: explain skips files not created yet, and derive --stdout files about to be removed. Paths
 // use forward slashes everywhere, which every shell accepts, and what was typed matches with either separator.
-func completeExplain(opts *globalOptions) cobra.CompletionFunc {
+func completeOutputs(opts *globalOptions, skip plan.Status) cobra.CompletionFunc {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]cobra.Completion, cobra.ShellCompDirective) {
 		if len(args) > 0 {
 			return nil, noFiles
@@ -186,8 +187,8 @@ func completeExplain(opts *globalOptions) cobra.CompletionFunc {
 		typed := filepath.ToSlash(toComplete)
 		var files []cobra.Completion
 		for _, c := range p.Changes {
-			if c.Status == plan.Created {
-				continue // not there yet
+			if c.Status == skip {
+				continue
 			}
 			rel, err := filepath.Rel(cwd, filepath.Join(absRoot, filepath.FromSlash(c.Path)))
 			if rel = filepath.ToSlash(rel); err == nil && strings.HasPrefix(rel, typed) {
