@@ -221,7 +221,7 @@ func newExplainCommand(opts *globalOptions) *cobra.Command {
 		Long: `explain says where a generated file comes from: the output in adder.yaml that writes it, its
 template, the scans the template refers to, and whether the file is up to date.`,
 		Args:              usageArgs(cobra.ExactArgs(1)),
-		ValidArgsFunction: completeExplain(opts),
+		ValidArgsFunction: completeOutputs(opts, plan.Created),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rep := &explainReport{}
 			opts.report = rep

@@ -43,6 +43,18 @@ exec adder derive --out preview
 cmp stdout preview.out
 exists preview/drivers/drivers.gen.go
 
+# --stdout prints what derive would write to one file, and writes nothing.
+rm drivers/gcs
+exec adder derive --stdout drivers/drivers.gen.go
+cmp stdout want/drivers.gen.go
+! stderr .
+exits 3 adder check
+exits 1 adder derive --stdout go.mod
+! stdout .
+stderr '^go.mod: no output writes this file \[no-match\]$'
+exits 2 adder derive --stdout drivers/drivers.gen.go --dry-run
+stderr 'cannot be combined with --dry-run or --diff'
+
 -- derive.out --
 created    drivers/drivers.gen.go
 -- want/drivers.gen.go --

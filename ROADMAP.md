@@ -83,7 +83,7 @@ Status: ✅ available · 🔜 planned for the launch, when adder is published as
 | One output per item, with a templated path, for example a file per interface ([design 24](docs/design.md#24-one-output-per-item)) | ✅ |
 | Remove outputs that are no longer produced, found by their header within each output's path pattern ([design 15](docs/design.md#15-stale-outputs-are-found-by-header-within-each-outputs-own-path)) | ✅ |
 | Generated-file headers for other languages, using their comment syntax ([design 25](docs/design.md#25-generated-file-headers-for-other-languages)) | ✅ |
-| `--stdout` to print a single output instead of writing it | 🔜 launch |
+| `--stdout` to print a single output instead of writing it ([design 48](docs/design.md#48-printing-one-output-planned-launch)) | 🔜 launch |
 
 ### Scaffolding: `adder new`
 

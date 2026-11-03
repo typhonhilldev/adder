@@ -28,12 +28,13 @@ adder finds `adder.yaml` in the current directory or the nearest parent with one
 | `-n`, `--dry-run` | `derive`, `new` | Show what would change without writing anything. |
 | `--diff` | `derive`, `check`, `new` | Also show each change as a unified diff. Writes nothing. |
 | `--out <dir>` | `derive` | Write outputs under another directory instead of the root. |
+| `--stdout <file>` | `derive` | Print the content `derive` would write to one output file, given from the current directory, and write nothing. |
 | `--inputs <file>` | `new` | Read inputs from a JSON object, or `-` for standard input. Arguments override it. |
 | `--update` | `test` | Rewrite the golden files with what the generators create now. |
 
 `adder new <generator>` takes its inputs as arguments, `name=report`, or a bool input's bare name, `withTest`, for true. Arguments override `--inputs`. `adder new <generator> --help` lists the inputs.
 
-Completion covers generator names, their inputs, input values from `values` and `valuesFrom`, and generated files for `adder explain`. In a terminal, statuses and problem codes are in color, unless `NO_COLOR` is set or `TERM` is `dumb`.
+Completion covers generator names, their inputs, input values from `values` and `valuesFrom`, and output files for `adder explain` and `adder derive --stdout`. In a terminal, statuses and problem codes are in color, unless `NO_COLOR` is set or `TERM` is `dumb`.
 
 ## Monorepos
 

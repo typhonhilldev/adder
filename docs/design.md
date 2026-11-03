@@ -80,7 +80,7 @@ Positions follow two rules:
 | `unsafe-path` | A path is absolute, escapes its root, uses backslashes, or goes through a symbolic link. |
 | `duplicate-path` | Two outputs write the same file. |
 | `duplicate-name` | A name is taken twice, such as two generator tests with one name, a generator a pack use adds under a name already taken, or two partials defining one template. |
-| `no-match` | A scan's directory pattern matched no directories, or a partial pattern matched no files. |
+| `no-match` | A scan's directory pattern matched no directories, a partial pattern matched no files, or `derive --stdout` was given a file that no output writes. |
 | `go-syntax` | A scanned Go file does not parse. |
 | `template-syntax` | A template does not parse. |
 | `template-exec` | A template failed while rendering, for example by referencing a missing field. |
@@ -1080,7 +1080,7 @@ adder only writes these formats when asked. The [GitHub Action](#34-integrations
 | `derive` | | `adder derive`, with `--write` |
 | `new-<generator>` | the generator's inputs | `adder new <generator>`, one tool per generator, with `--write` |
 
-- **Read-only unless asked to write.** Without `--write`, the server only reads: agents see the generators, preview them, test them, and check outputs. With `adder mcp --write`, it adds `derive` and a tool for each generator, which write files. Writing tools are marked as not read-only in their annotations, so a client can ask before calling them, and `derive` as destructive, since it removes outputs that are no longer produced. adder never overwrites a file it did not generate, as always. Writing calls run one at a time.
+- **Read-only unless asked to write.** Without `--write`, the server only reads: agents see the generators, preview them, test them, and check outputs. With `adder mcp --write`, it adds `derive` and a tool for each generator, which write files. Writing tools are marked as not read-only in their annotations, so a client can ask before calling them, and `derive` as destructive, since it removes outputs that are no longer produced. adder never overwrites a file it did not generate, as always. Writing calls run one at a time, and reading calls wait while one runs, so they never see a half-written repository.
 - **A tool per generator** gives the agent each generator's inputs as the tool's JSON Schema, the same `inputSchema` `adder describe` returns, so it fills them in like any other tool. The `new-` prefix keeps them apart from the fixed tools, whatever a generator is called.
 - **Current on every call.** `adder.yaml` is loaded for each call, so edits apply without restarting the server, and the tool list follows the generators, with the change notification that the client's protocol version uses. Without an `adder.yaml`, the server still starts, and its tools report the problem, with a hint to run `adder init`.
 - **Instructions.** The server gives the client the guidance of [the agents guide](agents.md): use generators rather than writing their files by hand, never edit a file marked `DO NOT EDIT` but find its template with `explain`, and run `check` after changing code that a scan reads.
@@ -1102,6 +1102,24 @@ adder only writes these formats when asked. The [GitHub Action](#34-integrations
 | Prompts, which clients show as commands | A guided way for people to add a component, but agents do not need one ([roadmap](../ROADMAP.md)). |
 | Asking the user for missing inputs, as `adder new` does in a terminal | The protocol's way to ask changed in 2026-07-28, and an agent can fill the inputs from the schema ([roadmap](../ROADMAP.md)). |
 | An `init` tool | Setting adder up is rare, and `adder init` works from any shell. |
+
+### 48. Printing one output (planned, launch)
+
+`adder derive --stdout <file>` prints the content `derive` would write to one output file, header included, and writes nothing. The file is given from the current directory, as for `adder explain`, and found in the configuration nearest it. Nothing else goes to standard output, so it can be piped to `diff`, a formatter, or an editor; problems and warnings go to standard error, as always.
+
+- It is a file of the plan, from a single output or one with `each`, created or updated or unchanged. A file that no output writes, including one `derive` would remove, is a `no-match` problem, with exit code 1.
+- The whole plan is rendered, so every problem stops it, as for `derive`.
+- It cannot be combined with directory patterns, `--out`, `--dry-run`, `--diff`, or a `--format` other than `text`, which each concern every output or a report: that is a usage mistake, with exit code 2.
+- Shell completion offers the plan's files, including those not created yet.
+
+**Why:** seeing one output's content as adder renders it, without writing anything or reading a diff, helps when debugging a template, comparing with a hand-written file, or feeding an editor or another tool.
+
+| Considered | Why not |
+| --- | --- |
+| A separate command, such as `adder render <file>` | It is `derive` for one file, and a flag keeps the command list short. |
+| Choosing the output by its template or position in `adder.yaml` | An output with `each` writes many files, and the path is how people name the file they want. |
+| A `content` field with `--format json` | A JSON report of one file's content is the file with extra steps; agents read files, and `check --diff` already shows what would change. |
+| `--out -` | `--out` names a directory for every output, and `-` would be the only value with another meaning. |
 
 ## Compatibility
 

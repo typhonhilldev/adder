@@ -54,7 +54,7 @@ type mcpServer struct {
 	write  bool
 	server *mcp.Server
 
-	writing    sync.Mutex // writing tools run one at a time
+	writing    sync.RWMutex // writing tools run one at a time, and never while a reading tool runs
 	refreshing sync.Mutex
 	generators map[string]string // the generator tools registered now, by name, with their input schemas
 }
@@ -203,7 +203,10 @@ func (m *mcpServer) refresh() {
 // run runs adder with line, the command and its arguments, and returns what it prints with --format json. The
 // result is an error when adder found problems, but not when outputs are only out of date.
 func (m *mcpServer) run(ctx context.Context, readOnly bool, line []string, stdin []byte) *mcp.CallToolResult {
-	if !readOnly {
+	if readOnly {
+		m.writing.RLock()
+		defer m.writing.RUnlock()
+	} else {
 		m.writing.Lock()
 		defer m.writing.Unlock()
 	}

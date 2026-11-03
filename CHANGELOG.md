@@ -4,6 +4,14 @@ All notable changes to adder are documented here. The format follows [Keep a Cha
 
 ## [Unreleased]
 
+### Added
+
+- `adder derive --stdout <file>` prints the content `derive` would write to one output file, and writes nothing, for piping to `diff`, a formatter, or an editor. Shell completion offers the output files.
+
+### Fixed
+
+- With `adder mcp`, a reading tool such as `check` or `explain` could run while `derive` or a generator's tool was writing, and report a half-written repository. Reading tools now wait for writing ones.
+
 ## [1.3.0] - 2026-11-03
 
 ### Added
